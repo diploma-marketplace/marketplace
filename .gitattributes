@@ -1,0 +1,8 @@
+# У репозиторії всі текстові файли з переносами рядків як у Linux (LF),
+# щоб на Windows і на сервері файли були однакові
+* text=auto eol=lf
+
+# Скрипти Windows залишаються з переносами Windows
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf

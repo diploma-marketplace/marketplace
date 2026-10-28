@@ -1,0 +1,45 @@
+# Секрети та налаштування оточення
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+TestResults/
+
+# Node / React
+node_modules/
+dist/
+build/
+coverage/
+npm-debug.log*
+yarn-error.log*
+.npm/
+
+# Логи
+*.log
+logs/
+
+# Редактори
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Операційні системи
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Бекапи і дані бази (персональні дані, ніколи в репозиторій)
+backups/
+*.sql.gz
+*.dump
+pgdata/
