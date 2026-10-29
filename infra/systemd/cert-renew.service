@@ -1,0 +1,9 @@
+# Що запустити: скрипт продовження сертифіката (викликає cert-renew.timer)
+[Unit]
+Description=Продовження HTTPS-сертифіката маркетплейсу
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/marketplace/infra/scripts/renew-cert.sh

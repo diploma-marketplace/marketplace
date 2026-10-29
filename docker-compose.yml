@@ -1,0 +1,30 @@
+# Сервіси маркетплейсу. Запуск на сервері: sudo docker compose up -d
+name: marketplace
+
+services:
+  # Nginx — вхід на сайт: HTTPS, сторінки фронтенду, далі /api → backend
+  nginx:
+    image: nginx:1.30.6-alpine        # версія закріплена, оновлюємо через PR
+    restart: unless-stopped           # піднімається сам після збою/перезавантаження
+    ports:
+      - "80:80"                       # HTTP: перевірка Let's Encrypt і редірект на HTTPS
+      - "443:443"                     # HTTPS: сайт
+    volumes:                          # :ro — Nginx лише читає
+      - ./infra/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./infra/nginx/html:/usr/share/nginx/html:ro
+      - certbot-www:/var/www/certbot:ro
+      - letsencrypt:/etc/letsencrypt:ro    # сертифікати — тільки на сервері, не в Git
+
+  # Certbot — HTTPS-сертифікат Let's Encrypt. Постійно не працює (економія пам'яті),
+  # запускається вручну один раз і далі скриптом infra/scripts/renew-cert.sh
+  certbot:
+    image: certbot/certbot:v5.6.0
+    profiles: ["tools"]
+    volumes:
+      - certbot-www:/var/www/certbot
+      - letsencrypt:/etc/letsencrypt
+
+# Спільні сховища Docker: зберігаються на сервері між перезапусками
+volumes:
+  certbot-www:
+  letsencrypt:
