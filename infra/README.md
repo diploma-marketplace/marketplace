@@ -13,15 +13,18 @@
 sudo git clone https://github.com/diploma-marketplace/marketplace.git /opt/marketplace
 cd /opt/marketplace
 
-# 2. Перший сертифікат (Nginx ще не запущений, порт 80 вільний)
+# 2. Захист сервера: firewall UFW (відкриті 22, 80, 443) і fail2ban
+sudo bash infra/scripts/harden.sh
+
+# 3. Перший сертифікат (Nginx ще не запущений, порт 80 вільний)
 sudo docker compose run --rm -p 80:80 certbot certonly --standalone \
   -d diploma-marketplace.denmarkeast.cloudapp.azure.com \
   --register-unsafely-without-email --agree-tos
 
-# 3. Запуск сайту
+# 4. Запуск сайту
 sudo docker compose up -d
 
-# 4. Автопродовження сертифіката (таймер systemd)
+# 5. Автопродовження сертифіката (таймер systemd)
 sudo cp infra/systemd/cert-renew.service infra/systemd/cert-renew.timer /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now cert-renew.timer
@@ -40,4 +43,4 @@ sudo /opt/marketplace/infra/scripts/renew-cert.sh                    # ручн�
 
 ## Якщо сертифікат втрачено (переїзд, новий сервер)
 
-`sudo docker compose down`, далі кроки 2–4.
+`sudo docker compose down`, далі кроки 3–5. На новому сервері — усі кроки з першого.
