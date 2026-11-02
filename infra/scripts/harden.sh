@@ -14,4 +14,8 @@ sudo apt update && sudo apt install -y fail2ban
 sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
 sudo systemctl enable --now fail2ban
 
+echo "=== Налаштування безпеки SSH ==="
+sudo cp infra/ssh/custom.conf /etc/ssh/sshd_config.d/custom.conf
+sudo sshd -t && sudo systemctl restart ssh
+
 echo "=== Безпеку сервера успішно налаштовано! ==="
