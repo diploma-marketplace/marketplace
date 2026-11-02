@@ -9,7 +9,7 @@
 | Backend | .NET |
 | Frontend | React + TypeScript |
 | База даних | PostgreSQL |
-| Запуск | Docker + docker-compose |
+| Запуск | Docker + Docker Compose |
 | Вхід на сайт | Nginx (reverse proxy, HTTPS) |
 | CI/CD | GitHub Actions |
 | Сервер | Microsoft Azure, Ubuntu |
@@ -20,13 +20,16 @@
 backend/            серверна частина (.NET)
 frontend/           клієнтська частина (React)
 infra/nginx/        налаштування Nginx
-infra/scripts/      скрипти для сервера: деплой, бекапи
+infra/scripts/      скрипти для сервера: сертифікат, захист, далі деплой і бекапи
+infra/systemd/      таймер автопродовження сертифіката
+dev/                локальна база для розробки
 .github/workflows/  конвеєри CI/CD
 ```
 
 ## Запуск
 
-Інструкція з'явиться разом з `docker-compose.yml`. Усе буде запускатися однією командою через Docker, однаково у всіх і на сервері.
+- **Локальна розробка:** база PostgreSQL у Docker — [dev/README.md](dev/README.md).
+- **Сервер:** порядок першого запуску — [infra/README.md](infra/README.md).
 
 ## Як працювати з репозиторієм
 
