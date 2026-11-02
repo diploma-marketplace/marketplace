@@ -1,0 +1,25 @@
+# Локальна база для розробки (НЕ для сервера). Запуск з кореня репозиторію:
+#   docker compose -f dev/docker-compose.yml up -d
+# Однаково працює на Windows, macOS і Linux. Інструкція: dev/README.md
+name: marketplace-dev
+
+services:
+  # PostgreSQL тієї ж версії, що й база в Azure
+  db:
+    image: postgres:17.11             # як в Azure; версію оновлюємо через PR
+    environment:
+      POSTGRES_USER: postgres         # адмін (в Azure це mpadmin), застосунок під ним не ходить
+      POSTGRES_PASSWORD: postgres_dev # лише для локальної бази, не секрет
+    ports:
+      - "127.0.0.1:${DB_PORT:-5432}:5432"   # доступ лише з цього комп'ютера; зайнятий порт міняється в dev/.env
+    volumes:
+      - db-data:/var/lib/postgresql/data          # дані живуть у Docker, не в репозиторії
+      - ./initdb:/docker-entrypoint-initdb.d:ro   # перший запуск: користувач marketplace_app і база marketplace
+    healthcheck:                      # healthy = скрипт першого запуску відпрацював, база приймає підключення
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U marketplace_app -d marketplace"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  db-data:
