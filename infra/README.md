@@ -44,3 +44,7 @@ sudo /opt/marketplace/infra/scripts/renew-cert.sh                    # ручн�
 ## Якщо сертифікат втрачено (переїзд, новий сервер)
 
 `sudo docker compose down`, далі кроки 3–5. На новому сервері — усі кроки з першого.
+
+## База даних
+
+Ролі, права і перше налаштування бази в Azure — [db/README.md](db/README.md).

@@ -22,6 +22,7 @@ frontend/           клієнтська частина (React)
 infra/nginx/        налаштування Nginx
 infra/scripts/      скрипти для сервера: сертифікат, захист, далі деплой і бекапи
 infra/systemd/      таймер автопродовження сертифіката
+infra/db/           ролі та права бази в Azure
 dev/                локальна база для розробки
 .github/workflows/  конвеєри CI/CD
 ```
