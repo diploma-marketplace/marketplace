@@ -23,6 +23,10 @@ REVOKE ALL ON DATABASE marketplace FROM PUBLIC;
 GRANT CONNECT ON DATABASE marketplace TO marketplace_app;
 GRANT USAGE ON SCHEMA public TO marketplace_app;
 
+-- В Azure схемою public володіє azure_pg_admin, а не власник бази,
+-- тому право створювати в ній таблиці видаємо окремо
+GRANT USAGE, CREATE ON SCHEMA public TO marketplace_owner;
+
 -- Усе, що marketplace_owner створить міграціями, одразу доступне backend-у на читання і запис.
 -- Діє лише на нові об'єкти, тому виконується до першої міграції
 ALTER DEFAULT PRIVILEGES FOR ROLE marketplace_owner IN SCHEMA public
