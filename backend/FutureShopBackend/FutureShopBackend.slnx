@@ -1,3 +1,6 @@
 <Solution>
-  <Project Path="FutureShopBackend.csproj" />
+  <Project Path="../FutureShopBackend.Application/FutureShopBackend.Application.csproj" Id="173bf9a1-6c5e-40f3-9f59-2b4a2d5811d4" />
+  <Project Path="../FutureShopBackend.Domain/FutureShopBackend.Domain.csproj" Id="9042cd72-3958-4137-85ae-2874187c5758" />
+  <Project Path="../FutureShopBackend.Infrastructure/FutureShopBackend.Infrastructure.csproj" Id="74f58f7b-9066-4b45-a7a7-913f27604484" />
+  <Project Path="FutureShopBackend.Api.csproj" />
 </Solution>
