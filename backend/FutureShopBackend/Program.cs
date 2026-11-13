@@ -1,4 +1,5 @@
 using FutureShopBackend.Api;
+using FutureShopBackend.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,8 @@ builder.Services.AddAppDI();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {

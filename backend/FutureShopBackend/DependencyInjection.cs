@@ -1,9 +1,11 @@
+using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using FutureShopBackend.Application;
 using FutureShopBackend.Application.DTO.Common;
 using FutureShopBackend.Domain.Enums;
 using FutureShopBackend.Infrastructure;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
 
 namespace FutureShopBackend.Api
@@ -20,6 +22,31 @@ namespace FutureShopBackend.Api
                 .AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                })
+                .ConfigureApiBehaviorOptions(options =>
+                {
+                    options.InvalidModelStateResponseFactory = context =>
+                    {
+                        var validationErrors = context.ModelState
+                            .Where(entry => entry.Value?.Errors.Count > 0)
+                            .ToDictionary(
+                                entry => JsonNamingPolicy_CamelCase(entry.Key),
+                                entry => entry.Value!.Errors
+                                    .Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage) ? "Invalid value." : e.ErrorMessage)
+                                    .ToArray());
+
+                        var errorResponse = new ApiErrorResponse
+                        {
+                            Status = StatusCodes.Status400BadRequest,
+                            Code = "VALIDATION_ERROR",
+                            Message = "One or more validation errors occurred.",
+                            Errors = validationErrors,
+                            TraceId = Activity.Current?.Id ?? context.HttpContext.TraceIdentifier,
+                            Timestamp = DateTimeOffset.UtcNow
+                        };
+
+                        return new BadRequestObjectResult(errorResponse);
+                    };
                 });
 
             services.AddEndpointsApiExplorer();
@@ -62,6 +89,25 @@ namespace FutureShopBackend.Api
             });
 
             return services;
+        }
+
+        private static string JsonNamingPolicy_CamelCase(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+            {
+                return key;
+            }
+
+            var parts = key.Split('.');
+            for (var i = 0; i < parts.Length; i++)
+            {
+                if (parts[i].Length > 0)
+                {
+                    parts[i] = char.ToLowerInvariant(parts[i][0]) + parts[i][1..];
+                }
+            }
+
+            return string.Join('.', parts);
         }
     }
 }
