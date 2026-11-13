@@ -1,0 +1,54 @@
+:root {
+  --color-bg: #ffffff;
+  --color-surface: #6b1d2f;
+  --color-surface-text: #f8f9fa;
+  --color-text: #6b1d2f;
+  --color-text-muted: #884053;
+  --color-border: #6b1d2f;
+
+  --color-wishlist-bg: #d8d8d8;
+  --color-component-bg: rgba(107, 29, 47, 40%);
+  --color-button: #d4af37;
+
+  --color-product-text: #6b1d2f;
+  --color-product-description: #6b1d2f;
+  --color-product-rating: #6b1d2f;
+  --color-product-bg: #f2e4e4;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  --font: system-ui, -apple-system, 'Inter', sans-serif;
+  --lineHeight: 1.5;
+  --radius-md: 20%;
+  --radius-sm: 10%;
+  --header-height: 15vh;
+}
+
+:root[data-theme='dark'] {
+  --color-bg: #121212;
+  --color-text: #ffffff;
+
+  --color-component-bg: rgba(0, 0, 0, 60%);
+  --color-button-text: #ffffff;
+
+  --color-product-bg: #2a2d34;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']):not([data-theme='dark']) {
+    --color-bg: #121212;
+    --color-text: #ffffff;
+
+    --color-component-bg: rgba(0, 0, 0, 60%);
+    --color-button-text: #ffffff;
+
+    --color-product-bg: #2a2d34;
+  }
+}

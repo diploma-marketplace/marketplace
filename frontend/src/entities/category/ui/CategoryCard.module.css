@@ -1,0 +1,20 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+}
+
+.image {
+  aspect-ratio: 4/4;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+}
+
+.name {
+  margin: 0;
+  font-size: 1rem;
+}
