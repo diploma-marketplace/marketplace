@@ -10,11 +10,10 @@ export function Header() {
         <Link to="/" className={styles.logo}>
           Future Market
         </Link>
-        <Button variant="secondary">Catalogue</Button>
         <SearchBar />
         <nav className={styles.actions} aria-label="actions">
-          <Button variant="primary">Log In</Button>
-          <Button variant="primary">Sign Up</Button>
+          <Button variant="secondary">Log In</Button>
+          <Button variant="secondary">Sign Up</Button>
         </nav>
       </Container>
     </header>

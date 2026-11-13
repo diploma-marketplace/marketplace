@@ -9,6 +9,7 @@
   --color-wishlist-bg: #d8d8d8;
   --color-component-bg: rgba(107, 29, 47, 40%);
   --color-button: #d4af37;
+  --color-button-text: #6b1d2f;
 
   --color-product-text: #6b1d2f;
   --color-product-description: #6b1d2f;
@@ -26,12 +27,14 @@
 
   --font: system-ui, -apple-system, 'Inter', sans-serif;
   --lineHeight: 1.5;
-  --radius-md: 20%;
-  --radius-sm: 10%;
-  --header-height: 15vh;
+  --radius-full: 100px;
+  --radius-big: 30px;
+  --radius-md: 15px;
+  --radius-sm: 5px;
+  --header-height: 10vh;
 }
 
-:root[data-theme='dark'] {
+/*:root[data-theme='dark'] {
   --color-bg: #121212;
   --color-text: #ffffff;
 
@@ -39,9 +42,9 @@
   --color-button-text: #ffffff;
 
   --color-product-bg: #2a2d34;
-}
+}*/
 
-@media (prefers-color-scheme: dark) {
+/*@media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']):not([data-theme='dark']) {
     --color-bg: #121212;
     --color-text: #ffffff;
@@ -51,4 +54,4 @@
 
     --color-product-bg: #2a2d34;
   }
-}
+}*/
