@@ -1,0 +1,19 @@
+# Власники частин репозиторію. PR, що змінює ці файли, не зіллється без схвалення адміна
+# (правило «Require review from Code Owners» у захисті main).
+# Код програмістів (backend/, frontend/) власників не має: його ревʼюлять програмісти.
+
+# Інфраструктура: сервер, Nginx, скрипти, база, CI/CD
+/infra/              @diploma-marketplace/admins
+/docker-compose.yml  @diploma-marketplace/admins
+/dev/                @diploma-marketplace/admins
+/.github/            @diploma-marketplace/admins
+
+# Docker-файли в будь-якій папці: від них залежить викладка
+Dockerfile           @diploma-marketplace/admins
+.dockerignore        @diploma-marketplace/admins
+
+# Спільні правила репозиторію
+/README.md           @diploma-marketplace/admins
+/CONTRIBUTING.md     @diploma-marketplace/admins
+/.gitignore          @diploma-marketplace/admins
+/.gitattributes      @diploma-marketplace/admins
