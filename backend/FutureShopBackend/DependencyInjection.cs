@@ -1,16 +1,14 @@
-﻿using FutureShopBackend.Application;
-using FutureShopBackend.Infrastructure;
+﻿using FutureShopBackend.Infrastructure;
 
-namespace FutureShopBackend.Api
+namespace FutureShopBackend.Api;
+
+public static class DependencyInjection
 {
-    public static class DependencyInjection
+    public static IServiceCollection AddAppDI(this IServiceCollection services, IConfiguration configuration)
     {
-        public static IServiceCollection AddAppDI(this IServiceCollection services)
-        {
-            services
-                .AddApplicationDI()
-                .AddInfrastructureDI();
-            return services;
-        }
+        services.AddInfrastructureDI(configuration);
+
+
+        return services;
     }
 }
