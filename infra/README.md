@@ -45,6 +45,21 @@ sudo /opt/marketplace/infra/scripts/renew-cert.sh                    # ручн�
 
 `sudo docker compose down`, далі кроки 3–5. На новому сервері — усі кроки з першого.
 
+## Автоперевірка (CI)
+
+На кожен PR у `main` GitHub Actions ([.github/workflows/infra.yml](../.github/workflows/infra.yml)) перевіряє:
+
+- синтаксис Docker Compose (сервер і локальна база);
+- Nginx: `nginx -t` без попереджень на тому ж образі, редірект на HTTPS, шлях Let's Encrypt, HTTPS, маршрути React, HTTP/2, заголовки безпеки;
+- `infra/db/roles.sql` на PostgreSQL, налаштованому як Azure: права `marketplace_owner` і `marketplace_app`.
+
+Ті самі перевірки локально, з кореня репозиторію (потрібен Docker):
+
+```bash
+bash infra/ci/test-nginx.sh
+bash infra/ci/test-db-roles.sh
+```
+
 ## База даних
 
 Ролі, права і перше налаштування бази в Azure — [db/README.md](db/README.md).
