@@ -1,6 +1,17 @@
 @FutureShopBackend_HostAddress = http://localhost:5003
 
-GET {{FutureShopBackend_HostAddress}}/weatherforecast/
+### Swagger OpenAPI Specification
+GET {{FutureShopBackend_HostAddress}}/swagger/v1/swagger.json
 Accept: application/json
 
-###
+### Get Category Tree
+GET {{FutureShopBackend_HostAddress}}/api/categories
+Accept: application/json
+
+### Search Catalog Products (Marketplace vs ThirdParty filter)
+GET {{FutureShopBackend_HostAddress}}/api/products?sellerType=Marketplace&sortBy=Popular&page=1&pageSize=20
+Accept: application/json
+
+### Get Current Session
+GET {{FutureShopBackend_HostAddress}}/api/auth/me
+Accept: application/json
