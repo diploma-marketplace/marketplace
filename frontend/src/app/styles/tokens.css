@@ -31,7 +31,13 @@
   --radius-big: 30px;
   --radius-md: 15px;
   --radius-sm: 5px;
-  --header-height: 10vh;
+  --header-height: clamp(56px, 10vh, 72px);
+  --page-padding: var(--space-5);
+  --sidebar-width: clamp(180px, 17.5%, 280px);
+
+  --color-banner-bg: #f1f3f5;
+  --color-products-bg: #f8f9fa;
+  --color-category-tile: var(--color-button);
 }
 
 /*:root[data-theme='dark'] {

@@ -3,24 +3,39 @@
   top: 0;
   z-index: 10;
   background: var(--color-surface);
-  margin-bottom: var(--space-4);
 }
 
 .inner {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--space-5);
   height: var(--header-height);
 }
 .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
   font-weight: 700;
-  font-size: 2rem;
+  font-size: 1.75rem;
   white-space: nowrap;
   color: var(--color-surface-text);
-  margin-right: auto;
 }
+
+.logoMark {
+  width: 40px;
+  height: 40px;
+  background: var(--color-button);
+}
+
+.search{
+  flex: 1;
+  max-width: 400px;
+  margin: auto;
+}
+
 .actions {
+  --button-ghost-color: var(--color-surface-text);
+
   display: flex;
   gap: var(--space-2);
   margin-left: auto;

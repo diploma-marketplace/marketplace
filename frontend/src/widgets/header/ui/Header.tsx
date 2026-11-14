@@ -7,13 +7,16 @@ export function Header() {
   return (
     <header className={styles.header}>
       <Container className={styles.inner}>
-        <Link to="/" className={styles.logo}>
-          Future Market
+        <Link to="/" className={styles.logo} aria-label="FutureMarket, home page">
+          <span className={styles.logoMark} aria-hidden="true"/>
+          <span className={styles.logo}>Future Market</span>
         </Link>
-        <SearchBar />
+        <div className={styles.search}>
+          <SearchBar />
+        </div>
         <nav className={styles.actions} aria-label="actions">
-          <Button variant="secondary">Log In</Button>
-          <Button variant="secondary">Sign Up</Button>
+          <Button variant="ghost">Log In</Button>
+          <Button variant="ghost">Sign Up</Button>
         </nav>
       </Container>
     </header>

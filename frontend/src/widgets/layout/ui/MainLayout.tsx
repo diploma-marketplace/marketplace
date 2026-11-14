@@ -8,10 +8,12 @@ export function MainLayout() {
   return (
     <div className={styles.layout}>
       <Header />
-      <main className={styles.main}>
-        <Sidebar/>
-        <Outlet />
-      </main>
+        <div className={styles.body}>
+          <Sidebar/>
+            <main className={styles.main}>
+                <Outlet />
+            </main>
+        </div>
       <Footer />
     </div>
   );

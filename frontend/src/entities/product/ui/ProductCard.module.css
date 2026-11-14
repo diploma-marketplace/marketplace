@@ -3,14 +3,14 @@
   flex-direction: column;
   gap: var(--space-2);
   padding: var(--space-3);
-  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--color-bg);
+  background: var(--color-product-bg);
+  color: var(--color-product-text);
 }
 
 .image {
   aspect-ratio: 4/3;
-  background: var(--color-surface);
+  background: var(--color-component-bg);
   border-radius: var(--radius-sm);
 }
 
@@ -21,7 +21,7 @@
 
 .price {
   margin: 0;
-  front-weight: 600;
+  font-weight: 700;
 }
 
 .badge {
@@ -30,6 +30,5 @@
   color: var(--color-text);
   background: var(--color-bg);
   padding: 2px var(--space-2);
-  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
 }
