@@ -1,7 +1,7 @@
-using System.Reflection;
 using FutureShopBackend.Application.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Reflection;
 
 namespace FutureShopBackend.Application
 {

@@ -1,5 +1,6 @@
 using FutureShopBackend.Api;
 using FutureShopBackend.Api.Middleware;
+using FutureShopBackend.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,8 +9,6 @@ builder.Services.AddOpenApi();
 builder.Services.AddAppDI(builder.Configuration);
 
 var app = builder.Build();
-
-builder.Services.AddAppDI(builder.Configuration);
 
 // Configure the HTTP request pipeline.
 app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -33,5 +32,26 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapGet("/api/health", async (AppDbContext db, CancellationToken ct) =>
+{
+    try
+    {
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        cts.CancelAfter(TimeSpan.FromSeconds(3));
+        var dbOk = await db.Database.CanConnectAsync(cts.Token);
+        return dbOk
+            ? Results.Ok(new { status = "healthy", database = "up" })
+            : Results.Json(new { status = "unhealthy", database = "down" }, statusCode: 503);
+    }
+    catch (Exception)
+    {
+        return Results.Json(new { status = "unhealthy", database = "down" }, statusCode: 503);
+    }
+})
+.WithTags("Health")
+.WithSummary("Перевірка стану бекенду та бази даних")
+.Produces(StatusCodes.Status200OK)
+.Produces(StatusCodes.Status503ServiceUnavailable);
 
 app.Run();

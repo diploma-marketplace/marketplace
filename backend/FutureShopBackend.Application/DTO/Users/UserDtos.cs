@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations;
 using FutureShopBackend.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace FutureShopBackend.Application.DTO.Users;
 
