@@ -1,0 +1,13 @@
+.slide{
+    display: block;
+    width: 100%;
+    aspect-ratio: 21/4;
+    min-height: 110px;
+    background: var(--color-banner-bg);
+}
+
+.image{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

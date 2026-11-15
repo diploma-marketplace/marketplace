@@ -1,0 +1,17 @@
+.card {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1/1;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-category-tile);
+  color: var(--color-button-text);
+  text-align: center;
+}
+
+.name {
+  margin: 0;
+  font-size: clamp(0.75rem, 1.2vw, 1rem);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
