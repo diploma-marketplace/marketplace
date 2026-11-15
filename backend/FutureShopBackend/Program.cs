@@ -5,9 +5,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddOpenApi();
-builder.Services.AddAppDI();
+builder.Services.AddAppDI(builder.Configuration);
 
 var app = builder.Build();
+
+builder.Services.AddAppDI(builder.Configuration);
 
 // Configure the HTTP request pipeline.
 app.UseMiddleware<ExceptionHandlingMiddleware>();
