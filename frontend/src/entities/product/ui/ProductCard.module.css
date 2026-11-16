@@ -32,3 +32,19 @@
   padding: 2px var(--space-2);
   border-radius: var(--radius-sm);
 }
+
+@media (max-width: 768px) {
+  .card {
+    padding: var(--space-2);
+    gap: var(--space-1);
+  }
+
+  .title {
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+  }
+
+  .price {
+    font-size: 0.9rem;
+  }
+}

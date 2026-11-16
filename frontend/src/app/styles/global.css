@@ -32,3 +32,23 @@ img {
   white-space: nowrap;
   border: 0;
 }
+
+html {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  min-width: 320px;
+}
+
+button,
+input {
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --page-padding: 12px;
+  }
+}
