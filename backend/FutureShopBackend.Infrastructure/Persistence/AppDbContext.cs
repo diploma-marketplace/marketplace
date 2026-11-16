@@ -33,9 +33,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
         b.Entity<ApplicationRole>(e =>
         {
             e.HasData(
-                new ApplicationRole { Id = 1, Name = "admin",   NormalizedName = "ADMIN",   ConcurrencyStamp = "role-admin-v1" },
+                new ApplicationRole { Id = 1, Name = "admin", NormalizedName = "ADMIN", ConcurrencyStamp = "role-admin-v1" },
                 new ApplicationRole { Id = 2, Name = "company", NormalizedName = "COMPANY", ConcurrencyStamp = "role-company-v1" },
-                new ApplicationRole { Id = 3, Name = "user",    NormalizedName = "USER",    ConcurrencyStamp = "role-user-v1" });
+                new ApplicationRole { Id = 3, Name = "user", NormalizedName = "USER", ConcurrencyStamp = "role-user-v1" });
         });
 
         // ───────── USERS ─────────

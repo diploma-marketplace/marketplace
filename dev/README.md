@@ -94,3 +94,7 @@ Host=localhost;Port=5432;Database=marketplace;Username=marketplace_app;Password=
 - Паролі `marketplace_dev` і `postgres_dev` — лише для локальної бази, не секрет. Справжні паролі — тільки в GitHub Secrets і `.env` на сервері.
 - Порт відкритий лише для вашого комп'ютера (`127.0.0.1`): з мережі до бази не дістатися.
 - Дані лежать у Docker-томі `marketplace-dev_db-data`, не в репозиторії. `down -v` видаляє їх назавжди.
+
+## Backend у Docker
+
+API під профілем `api` (звичайний `up -d` підіймає лише базу і Redis): `docker compose -f dev/docker-compose.yml --profile api up -d --build`. Адреса: http://localhost:8080, Swagger: /swagger (порт змінюється через `API_PORT` у dev/.env). Після змін у коді backend додайте `--build`. Міграції застосовуються окремо, як описано вище.

@@ -1,5 +1,6 @@
 # Локальна база для розробки (НЕ для сервера). Запуск з кореня репозиторію:
 #   docker compose -f dev/docker-compose.yml up -d
+#   З бекендом: docker compose -f dev/docker-compose.yml --profile api up -d --build
 # Однаково працює на Windows, macOS і Linux. Інструкція: dev/README.md
 name: marketplace-dev
 
@@ -17,6 +18,36 @@ services:
       - ./initdb:/docker-entrypoint-initdb.d:ro   # перший запуск: користувач marketplace_app і база marketplace
     healthcheck:                      # healthy = скрипт першого запуску відпрацював, база приймає підключення
       test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U marketplace_app -d marketplace"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Backend (ASP.NET Core) - API на http://localhost:8080, Swagger: /swagger
+  api:
+    profiles: ["api"]                 # не стартує з `up -d`; запуск: --profile api
+    build:
+      context: ../backend
+      dockerfile: FutureShopBackend/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: "8080"
+      ConnectionStrings__Default: Host=db;Port=5432;Database=marketplace;Username=marketplace_app;Password=marketplace_dev
+      ConnectionStrings__Redis: redis:6379
+    ports:
+      - "127.0.0.1:${API_PORT:-8080}:8080"
+
+  # Redis - сховище сесій автентифікації
+  redis:
+    image: redis:8.10.3-alpine
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 10

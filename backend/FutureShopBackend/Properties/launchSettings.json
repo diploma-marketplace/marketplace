@@ -1,5 +1,13 @@
 {
   "profiles": {
+    "Docker Compose (dev)": {
+      "commandName": "Executable",
+      "executablePath": "docker",
+      "commandLineArgs": "compose -f ..\\..\\dev\\docker-compose.yml up -d --build --wait",
+      "workingDirectory": "$(ProjectDir)",
+      "launchBrowser": true,
+      "launchUrl": "http://localhost:8080/swagger"
+    },
     "http": {
       "commandName": "Project",
       "launchBrowser": true,
@@ -22,6 +30,7 @@
     },
     "Container (Dockerfile)": {
       "commandName": "Docker",
+      "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "environmentVariables": {
         "ASPNETCORE_HTTPS_PORTS": "8081",

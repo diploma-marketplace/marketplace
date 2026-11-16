@@ -1,12 +1,12 @@
-using System.Diagnostics;
-using System.Reflection;
-using System.Text.Json.Serialization;
 using FutureShopBackend.Application;
 using FutureShopBackend.Application.DTO.Common;
 using FutureShopBackend.Domain.Enums;
 using FutureShopBackend.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi;
+using System.Diagnostics;
+using System.Reflection;
+using System.Text.Json.Serialization;
 
 namespace FutureShopBackend.Api;
 

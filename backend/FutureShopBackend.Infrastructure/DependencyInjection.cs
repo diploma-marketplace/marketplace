@@ -1,6 +1,8 @@
-﻿using FutureShopBackend.Domain.Entities;
+﻿using FutureShopBackend.Application.Interfaces;
+using FutureShopBackend.Domain.Entities;
+using FutureShopBackend.Infrastructure.Auth;
 using FutureShopBackend.Infrastructure.Persistence;
-using EFCore.NamingConventions;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +21,16 @@ namespace FutureShopBackend.Infrastructure
             services.AddIdentityCore<ApplicationUser>(o => o.User.RequireUniqueEmail = true)
                 .AddRoles<ApplicationRole>()
                 .AddEntityFrameworkStores<AppDbContext>();
+
+            // bcrypt замість стандартного PBKDF2 (реєструється після Identity, тому перекриває його)
+            services.AddScoped<IPasswordHasher<ApplicationUser>, BcryptPasswordHasher>();
+
+            // Redis -сховище сесій (у cookie лише ключ сесії)
+            services.AddStackExchangeRedisCache(o =>
+                o.Configuration = configuration.GetConnectionString("Redis") ?? "localhost:6379");
+            services.AddSingleton<RedisTicketStore>();
+            services.AddHttpContextAccessor();
+            services.AddScoped<IAuthService, AuthService>(); // реєструється після заглушки, тому перекриває її
 
             return services;
         }

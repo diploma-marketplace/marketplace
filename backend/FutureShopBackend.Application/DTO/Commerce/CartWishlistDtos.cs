@@ -1,6 +1,6 @@
-using System.ComponentModel.DataAnnotations;
 using FutureShopBackend.Application.DTO.Catalog;
 using FutureShopBackend.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace FutureShopBackend.Application.DTO.Commerce;
 

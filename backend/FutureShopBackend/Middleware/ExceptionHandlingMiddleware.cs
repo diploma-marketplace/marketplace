@@ -1,8 +1,8 @@
+using FutureShopBackend.Application.DTO.Common;
+using FutureShopBackend.Application.Exceptions;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using FutureShopBackend.Application.DTO.Common;
-using FutureShopBackend.Application.Exceptions;
 
 namespace FutureShopBackend.Api.Middleware;
 

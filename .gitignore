@@ -43,3 +43,4 @@ backups/
 *.sql.gz
 *.dump
 pgdata/
+.serena
