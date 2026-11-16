@@ -154,7 +154,7 @@ public sealed record ResetPasswordRequest
 public sealed record AuthSessionResponse
 {
     /// <summary>Unique user identifier.</summary>
-    public Guid UserId { get; init; }
+    public int UserId { get; init; }
 
     /// <summary>Account email address.</summary>
     public string Email { get; init; } = string.Empty;

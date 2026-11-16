@@ -1,6 +1,7 @@
 using FutureShopBackend.Application.DTO.Auth;
 using FutureShopBackend.Application.DTO.Common;
 using FutureShopBackend.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FutureShopBackend.Api.Controllers;
@@ -52,6 +53,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     /// Terminates the active session and clears the authentication cookie.
     /// </summary>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize]
     [HttpPost("logout")]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
@@ -65,6 +67,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     /// Returns the currently authenticated user's session, role, and UI preferences.
     /// </summary>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize]
     [HttpGet("me")]
     [ProducesResponseType(typeof(AuthSessionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]

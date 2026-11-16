@@ -1,12 +1,33 @@
 using FutureShopBackend.Api;
 using FutureShopBackend.Api.Middleware;
+using FutureShopBackend.Infrastructure.Auth;
 using FutureShopBackend.Infrastructure.Persistence;
-
+using Microsoft.AspNetCore.Authentication.Cookies;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddOpenApi();
 builder.Services.AddAppDI(builder.Configuration);
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie();
+// Сесія зберігається в Redis (RedisTicketStore); у cookie лише ключ сесії
+builder.Services.AddOptions<CookieAuthenticationOptions>(CookieAuthenticationDefaults.AuthenticationScheme)
+    .Configure<RedisTicketStore>((options, store) =>
+    {
+        options.SessionStore = store;
+        options.Cookie.Name = "FutureMarket.Session";
+        options.Cookie.HttpOnly = true;                           // недоступна з JS
+        // лише HTTPS; локально в Docker API слухає http://localhost, тому там дозволяємо http
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Strict;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+        options.SlidingExpiration = true;
+        // замість редіректу 401/403
+        options.Events.OnRedirectToLogin = ctx => { ctx.Response.StatusCode = StatusCodes.Status401Unauthorized; return Task.CompletedTask; };
+        options.Events.OnRedirectToAccessDenied = ctx => { ctx.Response.StatusCode = StatusCodes.Status403Forbidden; return Task.CompletedTask; };
+    });
 
 var app = builder.Build();
 
@@ -28,9 +49,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.MapGet("/api/health", async (AppDbContext db, CancellationToken ct) =>
