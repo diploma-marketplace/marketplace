@@ -97,4 +97,4 @@ Host=localhost;Port=5432;Database=marketplace;Username=marketplace_app;Password=
 
 ## Backend у Docker
 
-API піднімається разом із базою і Redis: `docker compose -f dev/docker-compose.yml up -d --build`. Адреса: http://localhost:8080, Swagger: /swagger (порт змінюється через `API_PORT` у dev/.env). Після змін у коді backend додайте `--build`. Міграції застосовуються окремо, як описано вище.
+API під профілем `api` (звичайний `up -d` підіймає лише базу і Redis): `docker compose -f dev/docker-compose.yml --profile api up -d --build`. Адреса: http://localhost:8080, Swagger: /swagger (порт змінюється через `API_PORT` у dev/.env). Після змін у коді backend додайте `--build`. Міграції застосовуються окремо, як описано вище.

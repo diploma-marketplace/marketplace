@@ -1,5 +1,6 @@
 # Локальна база для розробки (НЕ для сервера). Запуск з кореня репозиторію:
 #   docker compose -f dev/docker-compose.yml up -d
+#   З бекендом: docker compose -f dev/docker-compose.yml --profile api up -d --build
 # Однаково працює на Windows, macOS і Linux. Інструкція: dev/README.md
 name: marketplace-dev
 
@@ -23,6 +24,7 @@ services:
 
   # Backend (ASP.NET Core) - API на http://localhost:8080, Swagger: /swagger
   api:
+    profiles: ["api"]                 # не стартує з `up -d`; запуск: --profile api
     build:
       context: ../backend
       dockerfile: FutureShopBackend/Dockerfile
@@ -41,7 +43,7 @@ services:
 
   # Redis - сховище сесій автентифікації
   redis:
-    image: redis:7.4-alpine
+    image: redis:8.10.3-alpine
     ports:
       - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     healthcheck:
