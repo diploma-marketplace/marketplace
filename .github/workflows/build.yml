@@ -1,0 +1,47 @@
+# Збірка коду на кожен PR у main: backend (Docker-образ) і frontend (лінтер і збірка).
+# Запускається завжди, навіть якщо PR не чіпає код: обов'язкова перевірка, яка не запустилась, блокує злиття.
+name: build
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:            # ручний запуск з вкладки Actions
+
+permissions:
+  contents: read                # робот лише читає код
+
+concurrency:                    # новий коміт у PR зупиняє стару перевірку
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: backend
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      # Той самий Dockerfile і ті самі версії .NET, що підуть на сервер
+      - name: Збірка Docker-образу backend
+        run: docker build -f backend/FutureShopBackend/Dockerfile -t marketplace-backend:ci backend
+
+  frontend:
+    name: frontend
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: frontend/.nvmrc   # версія Node, яку обрали програмісти
+      - name: Встановлення залежностей (точно за package-lock.json)
+        run: npm ci --no-audit --no-fund
+      - name: Лінтер
+        run: npm run lint
+      - name: Збірка
+        run: npm run build
