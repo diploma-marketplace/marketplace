@@ -8,3 +8,10 @@
         display: none;
     }
 }
+
+
+@media (max-width: 1023px) {
+    .sidebar {
+        min-height: 250px;
+    }
+}
