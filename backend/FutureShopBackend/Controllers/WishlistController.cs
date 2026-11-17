@@ -1,6 +1,7 @@
 using FutureShopBackend.Application.DTO.Commerce;
 using FutureShopBackend.Application.DTO.Common;
 using FutureShopBackend.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FutureShopBackend.Api.Controllers;
@@ -10,6 +11,7 @@ namespace FutureShopBackend.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/wishlist")]
+[Authorize(Roles = "User")]
 [Produces("application/json")]
 [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
 public class WishlistController(IWishlistService wishlistService) : ControllerBase

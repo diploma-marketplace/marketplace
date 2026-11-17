@@ -29,8 +29,10 @@ namespace FutureShopBackend.Infrastructure
             services.AddStackExchangeRedisCache(o =>
                 o.Configuration = configuration.GetConnectionString("Redis") ?? "localhost:6379");
             services.AddSingleton<RedisTicketStore>();
+
+            // Current user context accessor for RBAC and resource ownership verification
             services.AddHttpContextAccessor();
-            services.AddScoped<IAuthService, AuthService>(); // реєструється після заглушки, тому перекриває її
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
 
             return services;
         }

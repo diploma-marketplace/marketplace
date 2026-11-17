@@ -1,6 +1,7 @@
 using FutureShopBackend.Application.DTO.Catalog;
 using FutureShopBackend.Application.DTO.Common;
 using FutureShopBackend.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FutureShopBackend.Api.Controllers;
@@ -31,6 +32,7 @@ public class BrandsController(IBrandService brandService) : ControllerBase
     /// </summary>
     /// <param name="request">Brand creation payload.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ProducesResponseType(typeof(BrandDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
@@ -50,6 +52,7 @@ public class BrandsController(IBrandService brandService) : ControllerBase
     /// <param name="brandId">Brand identifier.</param>
     /// <param name="request">Updated brand payload.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "Admin")]
     [HttpPut("{brandId:guid}")]
     [ProducesResponseType(typeof(BrandDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
@@ -70,6 +73,7 @@ public class BrandsController(IBrandService brandService) : ControllerBase
     /// </summary>
     /// <param name="brandId">Brand identifier.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{brandId:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
