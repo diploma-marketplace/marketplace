@@ -1,6 +1,6 @@
-using System.Security.Claims;
 using FutureShopBackend.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace FutureShopBackend.Infrastructure.Auth;
 
