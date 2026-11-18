@@ -60,6 +60,13 @@ bash infra/ci/test-nginx.sh
 bash infra/ci/test-db-roles.sh
 ```
 
+Збірку коду перевіряє [.github/workflows/build.yml](../.github/workflows/build.yml): backend — збірка Docker-образу з `backend/FutureShopBackend/Dockerfile`, frontend — `npm ci`, лінтер і збірка на версії Node з `frontend/.nvmrc`. Локально, з кореня репозиторію:
+
+```bash
+docker build -f backend/FutureShopBackend/Dockerfile -t marketplace-backend:ci backend
+cd frontend && npm ci && npm run lint && npm run build
+```
+
 ## База даних
 
 Ролі, права і перше налаштування бази в Azure — [db/README.md](db/README.md).
