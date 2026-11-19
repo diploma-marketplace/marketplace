@@ -10,8 +10,7 @@ public interface IAuthService
 {
     Task<AuthSessionResponse> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default);
     Task<AuthSessionResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default);
-    Task<MessageResponse> LogoutAsync(CancellationToken cancellationToken = default);
-    Task<AuthSessionResponse> GetCurrentSessionAsync(CancellationToken cancellationToken = default);
+    Task<AuthSessionResponse> GetCurrentSessionAsync(int userId, CancellationToken cancellationToken = default);
     Task<MessageResponse> VerifyContactAsync(VerifyContactRequest request, CancellationToken cancellationToken = default);
     Task<MessageResponse> ForgotPasswordAsync(ForgotPasswordRequest request, CancellationToken cancellationToken = default);
     Task<MessageResponse> ResetPasswordAsync(ResetPasswordRequest request, CancellationToken cancellationToken = default);

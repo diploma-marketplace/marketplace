@@ -170,10 +170,10 @@ namespace FutureShopBackend.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("security_stamp");
 
-                    b.Property<string>("StatusType")
+                    b.Property<string>("SellerType")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
-                        .HasColumnName("status_type");
+                        .HasColumnName("seller_type");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean")
@@ -320,7 +320,7 @@ namespace FutureShopBackend.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
-                        .HasDefaultValue("new")
+                        .HasDefaultValue("created")
                         .HasColumnName("order_status");
 
                     b.Property<string>("PaymentStatus")
@@ -328,7 +328,7 @@ namespace FutureShopBackend.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
-                        .HasDefaultValue("unpaid")
+                        .HasDefaultValue("pending")
                         .HasColumnName("payment_status");
 
                     b.Property<string>("ShippingAddress")
@@ -367,17 +367,17 @@ namespace FutureShopBackend.Infrastructure.Persistence.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ItemStatus")
+                    b.Property<int>("OrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("order_id");
+
+                    b.Property<string>("OrderStatus")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
-                        .HasDefaultValue("new")
-                        .HasColumnName("item_status");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("integer")
-                        .HasColumnName("order_id");
+                        .HasDefaultValue("created")
+                        .HasColumnName("order_status");
 
                     b.Property<decimal>("PriceAtPurchase")
                         .HasPrecision(12, 2)

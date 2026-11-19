@@ -4,6 +4,7 @@ using FutureShopBackend.Application.DTO.Interaction;
 using FutureShopBackend.Application.DTO.Users;
 using FutureShopBackend.Application.Interfaces;
 using FutureShopBackend.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FutureShopBackend.Api.Controllers;
@@ -13,6 +14,7 @@ namespace FutureShopBackend.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/admin")]
+[Authorize(Roles = "Admin")]
 [Produces("application/json")]
 [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status403Forbidden)]
