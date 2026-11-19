@@ -60,6 +60,19 @@ bash infra/ci/test-nginx.sh
 bash infra/ci/test-db-roles.sh
 ```
 
+Збірку коду перевіряє [.github/workflows/build.yml](../.github/workflows/build.yml): backend — збірка Docker-образу з `backend/FutureShopBackend/Dockerfile`, frontend — `npm ci`, лінтер і збірка на версії Node з `frontend/.nvmrc`. Локально, з кореня репозиторію:
+
+```bash
+docker build -f backend/FutureShopBackend/Dockerfile -t marketplace-backend:ci backend
+cd frontend && npm ci && npm run lint && npm run build
+```
+
+Далі в тій самій перевірці backend запускається з базою, як при викладці: PostgreSQL, налаштований як Azure, ролі з `infra/db/roles.sql`, міграції самодостатнім пакетом (EF bundle) під `marketplace_owner`, backend з Redis під `marketplace_app`. Перевіряється, що міграції застосовуються, `marketplace_app` має права на всі нові таблиці й послідовності, backend працює не від root і `/api/health` бачить базу. Локально:
+
+```bash
+bash infra/ci/test-backend.sh
+```
+
 ## База даних
 
 Ролі, права і перше налаштування бази в Azure — [db/README.md](db/README.md).
