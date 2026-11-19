@@ -16,9 +16,7 @@ namespace FutureShopBackend.Api.Controllers;
 [Route("api/auth")]
 [Produces("application/json")]
 [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
-public class AuthController(
-    IAuthService authService,
-    ICurrentUserService currentUser) : ControllerBase
+public class AuthController(IAuthService authService) : ControllerBase
 {
     private static readonly TimeSpan SessionLifetime = TimeSpan.FromMinutes(30);
     private static readonly TimeSpan RememberMeLifetime = TimeSpan.FromDays(14);
@@ -113,15 +111,11 @@ public class AuthController(
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<AuthSessionResponse>> GetCurrentSession(CancellationToken cancellationToken)
     {
-        var userId = currentUser.UserId;
-        if (userId is null)
+        var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(idClaim, out var userId))
             return Unauthorized();
 
-        // The id is resolved from the authenticated server-side session.
-        // Never accept a user ID from the route or the request body for any endpoints!!!
-        currentUser.EnsureOwner(userId.Value);
-
-        var session = await authService.GetCurrentSessionAsync(userId.Value, cancellationToken);
+        var session = await authService.GetCurrentSessionAsync(userId, cancellationToken);
         return Ok(session);
     }
 

@@ -12,7 +12,9 @@ namespace FutureShopBackend.Application.Services;
 /// Реєстрація, вхід і профіль сесії.
 /// Чиста бізнес-логіка, яка не знає про HTTP, куки чи контексти запиту.
 /// </summary>
-public sealed class AuthService(UserManager<ApplicationUser> users) : IAuthService
+public sealed class AuthService(
+    UserManager<ApplicationUser> users,
+    ICurrentUserService currentUser) : IAuthService
 {
     private static readonly TimeSpan SessionLifetime = TimeSpan.FromMinutes(30);
     private static readonly TimeSpan RememberMeLifetime = TimeSpan.FromDays(14);
@@ -70,6 +72,10 @@ public sealed class AuthService(UserManager<ApplicationUser> users) : IAuthServi
 
     public async Task<AuthSessionResponse> GetCurrentSessionAsync(int userId, CancellationToken ct = default)
     {
+        // The requested account must belong to the authenticated server-side session.
+        // The owner id is never trusted from a request body or route.
+        currentUser.EnsureOwner(userId);
+
         var user = await users.FindByIdAsync(userId.ToString())
             ?? throw new UnauthorizedException();
 
