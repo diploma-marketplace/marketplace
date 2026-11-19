@@ -1,4 +1,4 @@
-# Збірка коду на кожен PR у main: backend (Docker-образ) і frontend (лінтер і збірка).
+# Збірка коду на кожен PR у main: backend (Docker-образ, міграції і запуск з базою) і frontend (лінтер і збірка).
 # Запускається завжди, навіть якщо PR не чіпає код: обов'язкова перевірка, яка не запустилась, блокує злиття.
 name: build
 
@@ -20,12 +20,15 @@ jobs:
   backend:
     name: backend
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       # Той самий Dockerfile і ті самі версії .NET, що підуть на сервер
       - name: Збірка Docker-образу backend
         run: docker build -f backend/FutureShopBackend/Dockerfile -t marketplace-backend:ci backend
+      # Як при викладці: міграції під marketplace_owner, backend під marketplace_app, /api/health
+      - name: Міграції і запуск backend з базою
+        run: bash infra/ci/test-backend.sh
 
   frontend:
     name: frontend
