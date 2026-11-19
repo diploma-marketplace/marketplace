@@ -1,5 +1,4 @@
 namespace FutureShopBackend.Application.Interfaces;
-
 /// <summary>
 /// Provides access to the currently authenticated user's contextual identity and roles in the request.
 /// </summary>
@@ -25,4 +24,10 @@ public interface ICurrentUserService
     /// Indicates whether the current request is authenticated.
     /// </summary>
     bool IsAuthenticated { get; }
+
+    /// <summary>
+    /// Ensures that the authenticated account owns the resource, unless it is an administrator.
+    /// The owner id must come from the database, never from the request body or route.
+    /// </summary>
+    void EnsureOwner(int ownerId);
 }

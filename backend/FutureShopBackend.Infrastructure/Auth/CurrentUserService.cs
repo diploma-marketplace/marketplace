@@ -1,3 +1,4 @@
+using FutureShopBackend.Application.Exceptions;
 using FutureShopBackend.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
@@ -29,4 +30,19 @@ public sealed class CurrentUserService(IHttpContextAccessor httpContextAccessor)
 
     /// <inheritdoc />
     public bool IsAuthenticated => User?.Identity?.IsAuthenticated == true;
+
+    public void EnsureOwner(int ownerId)
+    {
+        if (!IsAuthenticated || UserId is null)
+        {
+            throw new UnauthorizedException();
+        }
+
+        if (!IsAdmin && UserId.Value != ownerId)
+        {
+            throw new ForbiddenException(
+                "You can access only resources owned by your account.",
+                "RESOURCE_OWNER_REQUIRED");
+        }
+    }
 }
