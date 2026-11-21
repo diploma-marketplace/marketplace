@@ -41,6 +41,14 @@
   margin-left: auto;
 }
 
+.userName {
+  max-width: 160px;
+  overflow: hidden;
+  color: var(--color-surface-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 @media (max-width: 1023px) {
   .inner {
     gap: var(--space-3);
