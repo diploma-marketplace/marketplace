@@ -4,9 +4,10 @@
 # Запуск з кореня репозиторію (потрібен Docker): bash infra/ci/test-nginx.sh
 set -euo pipefail
 cd "$(dirname "$0")/../.."
+source infra/ci/common.sh
 
 DOMAIN=diploma-marketplace.denmarkeast.cloudapp.azure.com
-IMAGE=$(docker compose -f docker-compose.yml config --images | grep '^nginx:')   # версія з docker-compose.yml
+IMAGE=$(image_from docker-compose.yml nginx)   # версія з docker-compose.yml
 NAME=ci-nginx-$$
 HTTP=18080
 HTTPS=18443

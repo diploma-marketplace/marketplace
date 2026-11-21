@@ -1,0 +1,92 @@
+# Планові оновлення версій. Раз на місяць (1-го числа) Dependabot відкриває PR з новими версіями,
+# автоперевірки показують, чи нічого не зламалось. Версії в репозиторії закріплені
+# й змінюються лише через PR — Dependabot просто робить ці PR за нас.
+# Сповіщення про вразливості й PR з безпечною версією працюють окремо (налаштування репозиторію), без розкладу.
+# Інфраструктура (Actions, Docker) — PR для адмінів. Код програмістів (NuGet, npm) — лише patch
+# (виправлення помилок без змін у роботі), одним PR: нічого переробляти не треба.
+version: 2
+
+updates:
+  # GitHub Actions у .github/workflows
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+      time: "06:00"
+      timezone: Europe/Kyiv
+    open-pull-requests-limit: 3
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  # Образи в docker-compose.yml (nginx, certbot) і dev/docker-compose.yml (postgres, redis)
+  - package-ecosystem: docker-compose
+    directories: [/, /dev]
+    schedule:
+      interval: monthly
+      time: "06:00"
+      timezone: Europe/Kyiv
+    open-pull-requests-limit: 3
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      # PostgreSQL як в Azure (17): лише мінорні; на 18 переходимо разом з Azure
+      - dependency-name: postgres
+        update-types: [version-update:semver-major]
+      # Nginx лише stable-гілка: patch (1.30.6 → 1.30.7); на наступну парну (1.32) — вручну
+      - dependency-name: nginx
+        update-types: [version-update:semver-major, version-update:semver-minor]
+
+  # Образи .NET у Dockerfile backend
+  - package-ecosystem: docker
+    directory: /backend/FutureShopBackend
+    schedule:
+      interval: monthly
+      time: "06:00"
+      timezone: Europe/Kyiv
+    open-pull-requests-limit: 3
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      # Лишаємось на .NET 10 (LTS): перехід на 11 — рішення програмістів, не робота
+      - dependency-name: "*dotnet/*"
+        update-types: [version-update:semver-major]
+
+  # Пакети NuGet у backend: тут .slnx і проєкт Api, що посилається на решту проєктів,
+  # тож усі чотири проєкти оновлюються разом, одним PR. Лише patch
+  - package-ecosystem: nuget
+    directory: /backend/FutureShopBackend
+    schedule:
+      interval: monthly
+      time: "06:00"
+      timezone: Europe/Kyiv
+    open-pull-requests-limit: 1
+    cooldown:
+      default-days: 7               # нова версія — не раніше ніж через тиждень після виходу
+    groups:
+      patch:
+        update-types: [patch]
+    ignore:
+      # Більші оновлення програмісти роблять самі, коли вирішать
+      - dependency-name: "*"
+        update-types: [version-update:semver-major, version-update:semver-minor]
+
+  # Пакети npm у frontend. Лише patch
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: monthly
+      time: "06:00"
+      timezone: Europe/Kyiv
+    open-pull-requests-limit: 1
+    cooldown:
+      default-days: 7               # нова версія — не раніше ніж через тиждень після виходу
+    groups:
+      patch:
+        update-types: [patch]
+    ignore:
+      # Більші оновлення програмісти роблять самі, коли вирішать
+      - dependency-name: "*"
+        update-types: [version-update:semver-major, version-update:semver-minor]
