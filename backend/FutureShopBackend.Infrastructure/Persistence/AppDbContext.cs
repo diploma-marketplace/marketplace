@@ -1,4 +1,5 @@
 using FutureShopBackend.Domain.Entities;
+using FutureShopBackend.Domain.Enums;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -46,7 +47,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             e.Property(u => u.PasswordHash).IsRequired();
             e.Property(u => u.FullName).IsRequired().HasMaxLength(200);
             e.Property(u => u.AvatarUrl).HasMaxLength(500);
-            e.Property(u => u.StatusType).HasConversion(Lower<SellerStatusType>()).HasMaxLength(20);
+            e.Property(u => u.SellerType).HasConversion(Lower<SellerType>()).HasMaxLength(20);
             e.Property(u => u.Rating).HasPrecision(3, 2).HasDefaultValue(0m);
             e.Property(u => u.CreatedAt).HasDefaultValueSql("now()");
 
@@ -166,9 +167,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             e.Property(o => o.TotalPrice).HasPrecision(12, 2);
             e.Property(o => o.ShippingAddress).IsRequired().HasMaxLength(500);
             e.Property(o => o.PaymentStatus).HasConversion(Lower<PaymentStatus>()).HasMaxLength(20)
-                .HasDefaultValue(PaymentStatus.Unpaid);
+                .HasDefaultValue(PaymentStatus.Pending);
             e.Property(o => o.OrderStatus).HasConversion(Lower<OrderStatus>()).HasMaxLength(20)
-                .HasDefaultValue(OrderStatus.New);
+                .HasDefaultValue(OrderStatus.Created);
             e.Property(o => o.CreatedAt).HasDefaultValueSql("now()");
 
             e.HasOne(o => o.User).WithMany(u => u.Orders)
@@ -184,8 +185,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
                 t.HasCheckConstraint("ck_order_items_price_positive", "price_at_purchase > 0");
             });
             e.Property(i => i.PriceAtPurchase).HasPrecision(12, 2);
-            e.Property(i => i.ItemStatus).HasConversion(Lower<OrderItemStatus>()).HasMaxLength(20)
-                .HasDefaultValue(OrderItemStatus.New);
+            e.Property(i => i.OrderStatus).HasConversion(Lower<OrderStatus>()).HasMaxLength(20)
+                .HasDefaultValue(OrderStatus.Created);
             e.Property(i => i.TrackingNumber).HasMaxLength(100);
 
             e.HasOne(i => i.Order).WithMany(o => o.Items)

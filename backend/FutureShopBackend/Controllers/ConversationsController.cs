@@ -1,6 +1,7 @@
 using FutureShopBackend.Application.DTO.Common;
 using FutureShopBackend.Application.DTO.Interaction;
 using FutureShopBackend.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FutureShopBackend.Api.Controllers;
@@ -10,6 +11,7 @@ namespace FutureShopBackend.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/conversations")]
+[Authorize(Roles = "User, Company, Admin")]
 [Produces("application/json")]
 [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
 public class ConversationsController(IConversationService conversationService) : ControllerBase

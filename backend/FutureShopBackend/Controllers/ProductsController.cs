@@ -1,6 +1,7 @@
 using FutureShopBackend.Application.DTO.Catalog;
 using FutureShopBackend.Application.DTO.Common;
 using FutureShopBackend.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FutureShopBackend.Api.Controllers;
@@ -139,6 +140,7 @@ public class ProductsController(IProductService productService) : ControllerBase
     /// </summary>
     /// <param name="request">Product details, price, condition, stock, images, and specifications.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "User, Company, Admin")]
     [HttpPost]
     [ProducesResponseType(typeof(ProductDetailsResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
@@ -158,6 +160,7 @@ public class ProductsController(IProductService productService) : ControllerBase
     /// <param name="productId">Product identifier.</param>
     /// <param name="request">Updated product details.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "User, Company, Admin")]
     [HttpPut("{productId:guid}")]
     [ProducesResponseType(typeof(ProductDetailsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
@@ -179,6 +182,7 @@ public class ProductsController(IProductService productService) : ControllerBase
     /// <param name="productId">Product identifier.</param>
     /// <param name="request">Target publication status.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "User, Company, Admin")]
     [HttpPatch("{productId:guid}/status")]
     [ProducesResponseType(typeof(ProductDetailsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
@@ -199,6 +203,7 @@ public class ProductsController(IProductService productService) : ControllerBase
     /// </summary>
     /// <param name="productId">Product identifier.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "User, Company, Admin")]
     [HttpDelete("{productId:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
@@ -215,6 +220,7 @@ public class ProductsController(IProductService productService) : ControllerBase
     /// </summary>
     /// <param name="productId">Product identifier.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "User, Company, Admin")]
     [HttpGet("{productId:guid}/stats")]
     [ProducesResponseType(typeof(ProductStatisticsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
@@ -233,6 +239,7 @@ public class ProductsController(IProductService productService) : ControllerBase
     /// </summary>
     /// <param name="request">Feed format and source URL/reference.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "Company, Admin")]
     [HttpPost("import")]
     [ProducesResponseType(typeof(BulkProductImportResultResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]

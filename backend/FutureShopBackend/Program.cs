@@ -3,6 +3,7 @@ using FutureShopBackend.Api.Middleware;
 using FutureShopBackend.Infrastructure.Auth;
 using FutureShopBackend.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.Cookies;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

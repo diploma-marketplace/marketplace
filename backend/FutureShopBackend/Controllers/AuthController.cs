@@ -1,8 +1,11 @@
 using FutureShopBackend.Application.DTO.Auth;
 using FutureShopBackend.Application.DTO.Common;
 using FutureShopBackend.Application.Interfaces;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FutureShopBackend.Api.Controllers;
 
@@ -15,6 +18,9 @@ namespace FutureShopBackend.Api.Controllers;
 [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
 public class AuthController(IAuthService authService) : ControllerBase
 {
+    private static readonly TimeSpan SessionLifetime = TimeSpan.FromMinutes(30);
+    private static readonly TimeSpan RememberMeLifetime = TimeSpan.FromDays(14);
+
     /// <summary>
     /// Registers a new user (buyer / private seller / FOP) or company account and establishes a session cookie.
     /// </summary>
@@ -28,6 +34,7 @@ public class AuthController(IAuthService authService) : ControllerBase
         CancellationToken cancellationToken)
     {
         var session = await authService.RegisterAsync(request, cancellationToken);
+        await SignInSessionCookieAsync(session, rememberMe: false);
         return CreatedAtAction(nameof(GetCurrentSession), session);
     }
 
@@ -46,6 +53,7 @@ public class AuthController(IAuthService authService) : ControllerBase
         CancellationToken cancellationToken)
     {
         var session = await authService.LoginAsync(request, cancellationToken);
+        await SignInSessionCookieAsync(session, request.RememberMe);
         return Ok(session);
     }
 
@@ -59,8 +67,38 @@ public class AuthController(IAuthService authService) : ControllerBase
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<MessageResponse>> Logout(CancellationToken cancellationToken)
     {
-        var result = await authService.LogoutAsync(cancellationToken);
-        return Ok(result);
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return Ok(new MessageResponse { Message = "Logged out." });
+    }
+
+    private async Task SignInSessionCookieAsync(AuthSessionResponse session, bool rememberMe)
+    {
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, session.UserId.ToString()),
+            new(ClaimTypes.Email, session.Email),
+            new(ClaimTypes.Name, session.FullName),
+            new(ClaimTypes.Role, session.Role.ToString())
+        };
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var expires = rememberMe
+            ? DateTimeOffset.UtcNow.Add(RememberMeLifetime)
+            : session.ExpiresAt;
+
+        var props = new AuthenticationProperties
+        {
+            IsPersistent = rememberMe,
+            AllowRefresh = !rememberMe,
+            ExpiresUtc = expires
+        };
+
+        var userAgent = Request.Headers.UserAgent.ToString();
+        props.Items["ip"] = HttpContext.Connection.RemoteIpAddress?.ToString();
+        props.Items["user_agent"] = userAgent.Length > 256 ? userAgent[..256] : userAgent;
+        props.Items["created_at"] = DateTimeOffset.UtcNow.ToString("O");
+
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity), props);
     }
 
     /// <summary>
@@ -73,7 +111,11 @@ public class AuthController(IAuthService authService) : ControllerBase
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<AuthSessionResponse>> GetCurrentSession(CancellationToken cancellationToken)
     {
-        var session = await authService.GetCurrentSessionAsync(cancellationToken);
+        var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(idClaim, out var userId))
+            return Unauthorized();
+
+        var session = await authService.GetCurrentSessionAsync(userId, cancellationToken);
         return Ok(session);
     }
 

@@ -1,6 +1,7 @@
 using FutureShopBackend.Application.DTO.Common;
 using FutureShopBackend.Application.DTO.Interaction;
 using FutureShopBackend.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FutureShopBackend.Api.Controllers;
@@ -57,6 +58,7 @@ public class ReviewsController(IReviewService reviewService) : ControllerBase
     /// </summary>
     /// <param name="query">Pagination parameters.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "User, Company, Admin")]
     [HttpGet("my")]
     [ProducesResponseType(typeof(PagedResponse<ReviewDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
@@ -74,6 +76,7 @@ public class ReviewsController(IReviewService reviewService) : ControllerBase
     /// </summary>
     /// <param name="request">Review rating, pros, cons, and comment.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "User")]
     [HttpPost]
     [ProducesResponseType(typeof(ReviewDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
@@ -94,6 +97,7 @@ public class ReviewsController(IReviewService reviewService) : ControllerBase
     /// <param name="reviewId">Review identifier.</param>
     /// <param name="request">Seller reply text.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "User, Company, Admin")]
     [HttpPost("{reviewId:guid}/reply")]
     [ProducesResponseType(typeof(ReviewDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
@@ -114,6 +118,7 @@ public class ReviewsController(IReviewService reviewService) : ControllerBase
     /// </summary>
     /// <param name="reviewId">Review identifier.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "User, Company, Admin")]
     [HttpDelete("{reviewId:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]

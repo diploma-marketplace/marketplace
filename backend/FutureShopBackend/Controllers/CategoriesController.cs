@@ -1,6 +1,7 @@
 using FutureShopBackend.Application.DTO.Catalog;
 using FutureShopBackend.Application.DTO.Common;
 using FutureShopBackend.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FutureShopBackend.Api.Controllers;
@@ -47,6 +48,7 @@ public class CategoriesController(ICategoryService categoryService) : Controller
     /// </summary>
     /// <param name="request">Category and attribute definitions.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ProducesResponseType(typeof(CategoryTreeDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
@@ -66,6 +68,7 @@ public class CategoriesController(ICategoryService categoryService) : Controller
     /// <param name="categoryId">Category identifier.</param>
     /// <param name="request">Updated category and attribute definitions.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "Admin")]
     [HttpPut("{categoryId:guid}")]
     [ProducesResponseType(typeof(CategoryTreeDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
@@ -86,6 +89,7 @@ public class CategoriesController(ICategoryService categoryService) : Controller
     /// </summary>
     /// <param name="categoryId">Category identifier.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{categoryId:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]

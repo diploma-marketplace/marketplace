@@ -1,6 +1,7 @@
 using FutureShopBackend.Application.DTO.Common;
 using FutureShopBackend.Application.DTO.Users;
 using FutureShopBackend.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FutureShopBackend.Api.Controllers;
@@ -18,6 +19,7 @@ public class UsersController(IUserService userService) : ControllerBase
     /// Retrieves the full private profile of the currently authenticated user or company.
     /// </summary>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "User, Company, Admin")]
     [HttpGet("me")]
     [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
@@ -32,6 +34,7 @@ public class UsersController(IUserService userService) : ControllerBase
     /// </summary>
     /// <param name="request">Updated profile fields.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "User, Company, Admin")]
     [HttpPut("me")]
     [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
@@ -49,6 +52,7 @@ public class UsersController(IUserService userService) : ControllerBase
     /// </summary>
     /// <param name="request">Current and new password.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "User, Company, Admin")]
     [HttpPut("me/password")]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
@@ -66,6 +70,7 @@ public class UsersController(IUserService userService) : ControllerBase
     /// </summary>
     /// <param name="request">Tax code (RNOKPP/EDRPOU), legal address, and IBAN details.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "User, Company")]
     [HttpPost("me/verification")]
     [ProducesResponseType(typeof(SellerVerificationResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
@@ -83,6 +88,7 @@ public class UsersController(IUserService userService) : ControllerBase
     /// Returns sales, view, wishlist, and conversion analytics for the authenticated seller or company.
     /// </summary>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "User, Company, Admin")]
     [HttpGet("me/analytics")]
     [ProducesResponseType(typeof(SellerAnalyticsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
@@ -97,6 +103,7 @@ public class UsersController(IUserService userService) : ControllerBase
     /// Deactivates the currently authenticated user account upon owner request.
     /// </summary>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "User, Company, Admin")]
     [HttpDelete("me")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
