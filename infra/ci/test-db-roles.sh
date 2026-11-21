@@ -6,8 +6,9 @@
 # Запуск з кореня репозиторію (потрібен Docker): bash infra/ci/test-db-roles.sh
 set -euo pipefail
 cd "$(dirname "$0")/../.."
+source infra/ci/common.sh
 
-IMAGE=postgres:17.11               # як в Azure
+IMAGE=$(image_from dev/docker-compose.yml postgres)   # як у dev/ і в Azure
 NAME=ci-pg-$$
 FAILED=0
 

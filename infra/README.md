@@ -73,6 +73,24 @@ cd frontend && npm ci && npm run lint && npm run build
 bash infra/ci/test-backend.sh
 ```
 
+Версії образів скрипти не вписують окремо, а беруть із `docker-compose.yml`, `dev/docker-compose.yml` і Dockerfile: оновили версію там — перевірки підхопили її самі.
+
+## Оновлення версій (Dependabot)
+
+Версії закріплені (у npm точні версії фіксує `package-lock.json`) і змінюються лише через PR. Раз на місяць, 1-го числа, Dependabot ([.github/dependabot.yml](../.github/dependabot.yml)) сам відкриває такі PR для GitHub Actions, образів Docker, NuGet і npm: дрібні оновлення одним PR на кожен вид, великі (лише Actions і Docker) — кожне окремо. Їх перевіряють ті самі автоперевірки й ревʼю, що й звичайні PR.
+
+Обмеження: PostgreSQL лише в межах 17 (як в Azure), .NET лише в межах 10 (LTS), Nginx лише patch стабільної гілки. NuGet і npm — лише patch (виправлення помилок), не раніше ніж через тиждень після виходу; більші оновлення програмісти роблять самі, коли вирішать.
+
+Після злиття PR з новим образом на сервері недостатньо `git pull`, контейнер треба перестворити (`/opt/marketplace`):
+
+```bash
+sudo git pull --ff-only
+sudo docker compose pull
+sudo docker compose up -d
+```
+
+Certbot окремо оновлювати не треба: таймер запускає його через `docker compose run`, і нова версія підтягнеться сама.
+
 ## База даних
 
 Ролі, права і перше налаштування бази в Azure — [db/README.md](db/README.md).
