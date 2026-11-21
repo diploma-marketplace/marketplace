@@ -18,7 +18,7 @@ services:
   # Certbot — HTTPS-сертифікат Let's Encrypt. Постійно не працює (економія пам'яті),
   # запускається вручну один раз і далі скриптом infra/scripts/renew-cert.sh
   certbot:
-    image: certbot/certbot:v5.6.0
+    image: certbot/certbot:v5.10.0
     profiles: ["tools"]
     volumes:
       - certbot-www:/var/www/certbot
