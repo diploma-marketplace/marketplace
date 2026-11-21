@@ -6,10 +6,12 @@
 # Запуск з кореня репозиторію (потрібен Docker): bash infra/ci/test-backend.sh
 set -euo pipefail
 cd "$(dirname "$0")/../.."
+source infra/ci/common.sh
 
-PG_IMAGE=$(docker compose -f dev/docker-compose.yml config --images | grep '^postgres:')      # як у dev/ і в Azure
-REDIS_IMAGE=$(docker compose -f dev/docker-compose.yml config --images | grep '^redis:')     # як у dev/
+PG_IMAGE=$(image_from dev/docker-compose.yml postgres)      # як у dev/ і в Azure
+REDIS_IMAGE=$(image_from dev/docker-compose.yml redis)      # як у dev/
 SDK_IMAGE=$(sed -n 's/^FROM \(mcr\.microsoft\.com\/dotnet\/sdk:[^ ]*\).*/\1/p' backend/FutureShopBackend/Dockerfile)  # як у Dockerfile
+[[ -n $SDK_IMAGE ]] || { echo "ПОМИЛКА: у backend/FutureShopBackend/Dockerfile немає образу mcr.microsoft.com/dotnet/sdk" >&2; exit 1; }
 APP_IMAGE=marketplace-backend:ci
 ID=$$
 NET=ci-backend-$ID
