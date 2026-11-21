@@ -1,0 +1,59 @@
+.panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+}
+
+.legend {
+    padding: 0;
+    margin-bottom: var(--space-2);
+    font-weight: 700;
+}
+
+.check {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    cursor: pointer;
+}
+
+.check input,
+.range input {
+    accent-color: var(--color-surface);
+}
+
+.sellers {
+    padding: var(--space-3);
+    border: 2px solid var(--color-button);
+    border-radius: var(--radius-md);
+    background: var(--color-bg);
+}
+
+.primaryCheck {
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    background: var(--color-button);
+    color: var(--color-button-text);
+    font-weight: 600;
+}
+
+.range {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    font-size: 0.9rem;
+}
+
+.range input {
+    width: 100%;
+}
