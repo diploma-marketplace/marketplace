@@ -32,6 +32,7 @@ public enum CatalogSortBy
     PriceDesc,
     RatingDesc,
     Newest,
+    Oldest,
     Popular
 }
 

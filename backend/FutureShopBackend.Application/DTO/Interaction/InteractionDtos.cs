@@ -8,11 +8,11 @@ namespace FutureShopBackend.Application.DTO.Interaction;
 /// </summary>
 public sealed record ReviewDto
 {
-    public Guid Id { get; init; }
-    public Guid ProductId { get; init; }
-    public string ProductTitle { get; init; } = string.Empty;
-    public Guid SellerId { get; init; }
-    public Guid AuthorId { get; init; }
+    public int Id { get; init; }
+    public int? ProductId { get; init; }
+    public string? ProductTitle { get; init; }
+    public int? SellerId { get; init; }
+    public int AuthorId { get; init; }
     public string AuthorName { get; init; } = string.Empty;
     public string? AuthorAvatarUrl { get; init; }
 
@@ -34,22 +34,25 @@ public sealed record ReviewDto
 }
 
 /// <summary>
-/// Request payload for submitting a product/seller review (User role only).
+/// Request payload for submitting a product/seller review (User role only; requires verified purchase).
 /// </summary>
 public sealed record CreateReviewRequest
 {
-    [Required]
-    public Guid ProductId { get; init; }
+    /// <summary>Target product identifier (optional if SellerId is provided directly, though verified purchase is always checked).</summary>
+    public int? ProductId { get; init; }
 
-    public Guid? OrderId { get; init; }
+    /// <summary>Target seller identifier (optional; automatically resolved from ProductId when ProductId is provided).</summary>
+    public int? SellerId { get; init; }
+
+    /// <summary>Optional order identifier referencing the purchase.</summary>
+    public int? OrderId { get; init; }
 
     [Required]
     [Range(1, 5)]
     public int Rating { get; init; }
 
-    [Required]
-    [StringLength(3000, MinimumLength = 5)]
-    public required string Comment { get; init; }
+    [StringLength(3000)]
+    public string? Comment { get; init; }
 
     [StringLength(500)]
     public string? Pros { get; init; }
@@ -73,14 +76,14 @@ public sealed record ReplyToReviewRequest
 /// </summary>
 public sealed record ConversationSummaryDto
 {
-    public Guid Id { get; init; }
-    public Guid BuyerId { get; init; }
+    public int Id { get; init; }
+    public int BuyerId { get; init; }
     public string BuyerName { get; init; } = string.Empty;
-    public Guid SellerId { get; init; }
+    public int SellerId { get; init; }
     public string SellerName { get; init; } = string.Empty;
-    public Guid? ProductId { get; init; }
+    public int? ProductId { get; init; }
     public string? ProductTitle { get; init; }
-    public Guid? OrderId { get; init; }
+    public int? OrderId { get; init; }
     public string? LastMessagePreview { get; init; }
     public int UnreadCount { get; init; }
     public DateTimeOffset UpdatedAt { get; init; }
@@ -91,9 +94,9 @@ public sealed record ConversationSummaryDto
 /// </summary>
 public sealed record ChatMessageDto
 {
-    public Guid Id { get; init; }
-    public Guid ConversationId { get; init; }
-    public Guid SenderId { get; init; }
+    public int Id { get; init; }
+    public int ConversationId { get; init; }
+    public int SenderId { get; init; }
     public string SenderName { get; init; } = string.Empty;
     public string Content { get; init; } = string.Empty;
     public bool IsRead { get; init; }
@@ -106,11 +109,11 @@ public sealed record ChatMessageDto
 public sealed record StartConversationRequest
 {
     [Required]
-    public Guid SellerId { get; init; }
+    public int SellerId { get; init; }
 
-    public Guid? ProductId { get; init; }
+    public int? ProductId { get; init; }
 
-    public Guid? OrderId { get; init; }
+    public int? OrderId { get; init; }
 
     [Required]
     [StringLength(2000, MinimumLength = 1)]
@@ -136,7 +139,7 @@ public sealed record CreateReportRequest
     public ReportTargetType TargetType { get; init; }
 
     [Required]
-    public Guid TargetId { get; init; }
+    public int TargetId { get; init; }
 
     [Required]
     [StringLength(150, MinimumLength = 3)]
@@ -151,11 +154,11 @@ public sealed record CreateReportRequest
 /// </summary>
 public sealed record ReportDetailsDto
 {
-    public Guid Id { get; init; }
-    public Guid ReporterId { get; init; }
+    public int Id { get; init; }
+    public int ReporterId { get; init; }
     public string ReporterEmail { get; init; } = string.Empty;
     public ReportTargetType TargetType { get; init; }
-    public Guid TargetId { get; init; }
+    public int TargetId { get; init; }
     public string Reason { get; init; } = string.Empty;
     public string? Description { get; init; }
     public ReportStatus Status { get; init; }

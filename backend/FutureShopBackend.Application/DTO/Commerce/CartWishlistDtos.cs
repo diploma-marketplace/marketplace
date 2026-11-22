@@ -9,7 +9,7 @@ namespace FutureShopBackend.Application.DTO.Commerce;
 /// </summary>
 public sealed record CartItemDto
 {
-    public Guid ProductId { get; init; }
+    public int ProductId { get; init; }
     public string ProductTitle { get; init; } = string.Empty;
     public string ProductSlug { get; init; } = string.Empty;
     public string? ImageUrl { get; init; }
@@ -24,7 +24,7 @@ public sealed record CartItemDto
 /// </summary>
 public sealed record CartSellerGroupDto
 {
-    public Guid SellerId { get; init; }
+    public int SellerId { get; init; }
     public string SellerDisplayName { get; init; } = string.Empty;
     public SellerType SellerType { get; init; }
     public bool IsVerifiedSeller { get; init; }
@@ -48,7 +48,7 @@ public sealed record CartResponse
 public sealed record AddCartItemRequest
 {
     [Required]
-    public Guid ProductId { get; init; }
+    public int ProductId { get; init; }
 
     [Required]
     [Range(1, 1000)]
@@ -70,7 +70,7 @@ public sealed record UpdateCartItemQuantityRequest
 /// </summary>
 public sealed record WishlistItemDto
 {
-    public Guid ProductId { get; init; }
+    public int ProductId { get; init; }
     public ProductCardDto Product { get; init; } = new();
 
     /// <summary>Product price in UAH at the moment it was added to the wishlist.</summary>

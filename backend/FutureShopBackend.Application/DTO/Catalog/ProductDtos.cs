@@ -9,23 +9,32 @@ namespace FutureShopBackend.Application.DTO.Catalog;
 /// </summary>
 public sealed record CatalogSearchQuery : PaginationQuery
 {
-    /// <summary>Search keyword matching product title, category, or tags.</summary>
+    /// <summary>Search keyword matching product title, description, or category.</summary>
     [StringLength(200)]
     public string? Query { get; init; }
 
-    /// <summary>Filter by category identifier.</summary>
-    public Guid? CategoryId { get; init; }
+    /// <summary>Short search keyword alias (?q=...).</summary>
+    [StringLength(200)]
+    public string? Q { get; init; }
+
+    /// <summary>Filter by category identifier (includes child subcategories).</summary>
+    public int? CategoryId { get; init; }
 
     /// <summary>Filter by brand identifier.</summary>
-    public Guid? BrandId { get; init; }
+    public int? BrandId { get; init; }
 
     /// <summary>Filter by specific seller identifier.</summary>
-    public Guid? SellerId { get; init; }
+    public int? SellerId { get; init; }
 
     /// <summary>
-    /// Filter separating first-party Marketplace offers from third-party seller/user listings.
+    /// Filter separating first-party Marketplace offers from third-party seller/user listings (Marketplace, ThirdParty, FOP, Company, Individual).
     /// </summary>
     public SellerType? SellerType { get; init; }
+
+    /// <summary>
+    /// Explicit boolean filter separating first-party Marketplace listings (true) from private/third-party seller listings (false).
+    /// </summary>
+    public bool? IsMarketplace { get; init; }
 
     /// <summary>Filter by physical condition (New or Used).</summary>
     public ProductCondition? Condition { get; init; }
@@ -42,11 +51,11 @@ public sealed record CatalogSearchQuery : PaginationQuery
     public bool? InStockOnly { get; init; }
 
     /// <summary>
-    /// Dynamic technical specification filters keyed by attribute name (e.g. Attributes[RAM]=16GB).
+    /// Dynamic technical specification filters keyed by attribute name or ID (e.g. Attributes[RAM]=16GB).
     /// </summary>
     public Dictionary<string, string>? Attributes { get; init; }
 
-    /// <summary>Sorting criterion (Relevance, PriceAsc, PriceDesc, RatingDesc, Newest, Popular).</summary>
+    /// <summary>Sorting criterion (Relevance, PriceAsc, PriceDesc, RatingDesc, Newest, Oldest, Popular).</summary>
     public CatalogSortBy SortBy { get; init; } = CatalogSortBy.Relevance;
 }
 
@@ -55,7 +64,7 @@ public sealed record CatalogSearchQuery : PaginationQuery
 /// </summary>
 public sealed record SearchSuggestionsResponse
 {
-    /// <summary>Suggested search phrases or tags.</summary>
+    /// <summary>Suggested search phrases or titles.</summary>
     public IReadOnlyList<string> SuggestedQueries { get; init; } = [];
 
     /// <summary>Matching categories.</summary>
@@ -70,7 +79,7 @@ public sealed record SearchSuggestionsResponse
 /// </summary>
 public sealed record CategorySuggestionItem
 {
-    public Guid Id { get; init; }
+    public int Id { get; init; }
     public string Name { get; init; } = string.Empty;
     public string Slug { get; init; } = string.Empty;
 }
@@ -80,7 +89,7 @@ public sealed record CategorySuggestionItem
 /// </summary>
 public sealed record ProductSellerSummaryDto
 {
-    public Guid Id { get; init; }
+    public int Id { get; init; }
     public string DisplayName { get; init; } = string.Empty;
     public SellerType SellerType { get; init; }
     public bool IsVerifiedSeller { get; init; }
@@ -93,7 +102,7 @@ public sealed record ProductSellerSummaryDto
 /// </summary>
 public sealed record ProductAttributeValueDto
 {
-    public Guid AttributeId { get; init; }
+    public int AttributeId { get; init; }
     public string Name { get; init; } = string.Empty;
     public string Value { get; init; } = string.Empty;
     public string? Unit { get; init; }
@@ -104,18 +113,19 @@ public sealed record ProductAttributeValueDto
 /// </summary>
 public sealed record ProductCardDto
 {
-    public Guid Id { get; init; }
+    public int Id { get; init; }
     public string Title { get; init; } = string.Empty;
     public string Slug { get; init; } = string.Empty;
     public string? PrimaryImageUrl { get; init; }
     public decimal PriceUah { get; init; }
     public decimal? PreviousPriceUah { get; init; }
     public ProductCondition Condition { get; init; }
+    public bool IsMarketplace { get; init; }
     public bool IsInStock { get; init; }
     public int StockQuantity { get; init; }
     public double Rating { get; init; }
     public int ReviewsCount { get; init; }
-    public Guid CategoryId { get; init; }
+    public int CategoryId { get; init; }
     public string CategoryName { get; init; } = string.Empty;
     public ProductSellerSummaryDto Seller { get; init; } = new();
 }
@@ -125,21 +135,22 @@ public sealed record ProductCardDto
 /// </summary>
 public sealed record ProductDetailsResponse
 {
-    public Guid Id { get; init; }
+    public int Id { get; init; }
     public string Title { get; init; } = string.Empty;
     public string Slug { get; init; } = string.Empty;
     public string Description { get; init; } = string.Empty;
     public decimal PriceUah { get; init; }
     public decimal? PreviousPriceUah { get; init; }
     public ProductCondition Condition { get; init; }
+    public bool IsMarketplace { get; init; }
     public ProductStatus Status { get; init; }
     public int StockQuantity { get; init; }
     public bool IsInStock => StockQuantity > 0;
     public double Rating { get; init; }
     public int ReviewsCount { get; init; }
-    public Guid CategoryId { get; init; }
+    public int CategoryId { get; init; }
     public string CategoryName { get; init; } = string.Empty;
-    public Guid? BrandId { get; init; }
+    public int? BrandId { get; init; }
     public string? BrandName { get; init; }
     public IReadOnlyList<string> ImageUrls { get; init; } = [];
     public IReadOnlyList<string> Tags { get; init; } = [];
@@ -154,11 +165,12 @@ public sealed record ProductDetailsResponse
 /// </summary>
 public sealed record ProductQuickViewResponse
 {
-    public Guid Id { get; init; }
+    public int Id { get; init; }
     public string Title { get; init; } = string.Empty;
     public decimal PriceUah { get; init; }
     public decimal? PreviousPriceUah { get; init; }
     public ProductCondition Condition { get; init; }
+    public bool IsMarketplace { get; init; }
     public bool IsInStock { get; init; }
     public int StockQuantity { get; init; }
     public double Rating { get; init; }
@@ -183,7 +195,7 @@ public sealed record PriceHistoryPointDto
 /// </summary>
 public sealed record ProductPriceHistoryResponse
 {
-    public Guid ProductId { get; init; }
+    public int ProductId { get; init; }
     public int PeriodDays { get; init; }
     public decimal CurrentPriceUah { get; init; }
     public decimal LowestPriceUah { get; init; }
@@ -197,7 +209,7 @@ public sealed record ProductPriceHistoryResponse
 /// </summary>
 public sealed record ComparisonSpecificationRowDto
 {
-    public Guid AttributeId { get; init; }
+    public int AttributeId { get; init; }
     public string AttributeName { get; init; } = string.Empty;
     public string? Unit { get; init; }
 
@@ -205,7 +217,7 @@ public sealed record ComparisonSpecificationRowDto
     public bool HasDifference { get; init; }
 
     /// <summary>Map of ProductId to formatted attribute value.</summary>
-    public IReadOnlyDictionary<Guid, string?> ValuesByProductId { get; init; } = new Dictionary<Guid, string?>();
+    public IReadOnlyDictionary<int, string?> ValuesByProductId { get; init; } = new Dictionary<int, string?>();
 }
 
 /// <summary>
@@ -213,7 +225,7 @@ public sealed record ComparisonSpecificationRowDto
 /// </summary>
 public sealed record ProductComparisonResponse
 {
-    public Guid CategoryId { get; init; }
+    public int CategoryId { get; init; }
     public string CategoryName { get; init; } = string.Empty;
     public IReadOnlyList<ProductCardDto> Products { get; init; } = [];
     public IReadOnlyList<ComparisonSpecificationRowDto> SpecificationRows { get; init; } = [];
@@ -225,7 +237,7 @@ public sealed record ProductComparisonResponse
 public sealed record UpsertProductSpecificationRequest
 {
     [Required]
-    public Guid AttributeId { get; init; }
+    public int AttributeId { get; init; }
 
     [Required]
     [StringLength(500)]
@@ -246,9 +258,9 @@ public sealed record UpsertProductRequest
     public required string Description { get; init; }
 
     [Required]
-    public Guid CategoryId { get; init; }
+    public int CategoryId { get; init; }
 
-    public Guid? BrandId { get; init; }
+    public int? BrandId { get; init; }
 
     [Required]
     [Range(0.01, 100000000)]
@@ -286,7 +298,7 @@ public sealed record UpdateProductStatusRequest
 /// </summary>
 public sealed record ProductStatisticsResponse
 {
-    public Guid ProductId { get; init; }
+    public int ProductId { get; init; }
     public long ViewsCount { get; init; }
     public int WishlistAdditionsCount { get; init; }
     public int CompletedSalesCount { get; init; }
@@ -314,7 +326,7 @@ public sealed record BulkProductImportRequest
 /// </summary>
 public sealed record BulkProductImportResultResponse
 {
-    public Guid ImportJobId { get; init; }
+    public int ImportJobId { get; init; }
     public int TotalRowsProcessed { get; init; }
     public int CreatedCount { get; init; }
     public int UpdatedCount { get; init; }

@@ -1,6 +1,7 @@
 using FutureShopBackend.Application.DTO.Commerce;
 using FutureShopBackend.Application.DTO.Common;
 using FutureShopBackend.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FutureShopBackend.Api.Controllers;
@@ -10,6 +11,7 @@ namespace FutureShopBackend.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/wishlist")]
+[Authorize(Roles = "User")]
 [Produces("application/json")]
 [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
 public class WishlistController(IWishlistService wishlistService) : ControllerBase
@@ -36,13 +38,13 @@ public class WishlistController(IWishlistService wishlistService) : ControllerBa
     /// </summary>
     /// <param name="productId">Product identifier.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpPost("{productId:guid}")]
+    [HttpPost("{productId:int}")]
     [ProducesResponseType(typeof(WishlistItemDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<WishlistItemDto>> AddToWishlist(
-        Guid productId,
+        int productId,
         CancellationToken cancellationToken)
     {
         var item = await wishlistService.AddToWishlistAsync(productId, cancellationToken);
@@ -54,12 +56,12 @@ public class WishlistController(IWishlistService wishlistService) : ControllerBa
     /// </summary>
     /// <param name="productId">Product identifier.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpDelete("{productId:guid}")]
+    [HttpDelete("{productId:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RemoveFromWishlist(
-        Guid productId,
+        int productId,
         CancellationToken cancellationToken)
     {
         await wishlistService.RemoveFromWishlistAsync(productId, cancellationToken);

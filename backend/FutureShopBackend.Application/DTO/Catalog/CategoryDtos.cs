@@ -9,10 +9,10 @@ namespace FutureShopBackend.Application.DTO.Catalog;
 public sealed record CategoryTreeDto
 {
     /// <summary>Unique category identifier.</summary>
-    public Guid Id { get; init; }
+    public int Id { get; init; }
 
     /// <summary>Parent category identifier (null for root categories).</summary>
-    public Guid? ParentId { get; init; }
+    public int? ParentId { get; init; }
 
     /// <summary>Localized category name.</summary>
     public string Name { get; init; } = string.Empty;
@@ -36,10 +36,10 @@ public sealed record CategoryTreeDto
 public sealed record CategoryAttributeDefinitionDto
 {
     /// <summary>Attribute definition identifier.</summary>
-    public Guid Id { get; init; }
+    public int Id { get; init; }
 
     /// <summary>Category identifier this attribute belongs to.</summary>
-    public Guid CategoryId { get; init; }
+    public int CategoryId { get; init; }
 
     /// <summary>Attribute display name (e.g. "Screen Size", "RAM").</summary>
     public string Name { get; init; } = string.Empty;
@@ -69,7 +69,7 @@ public sealed record CategoryAttributeDefinitionDto
 public sealed record UpsertCategoryRequest
 {
     /// <summary>Optional parent category identifier.</summary>
-    public Guid? ParentId { get; init; }
+    public int? ParentId { get; init; }
 
     /// <summary>Category display name.</summary>
     [Required]
@@ -126,7 +126,7 @@ public sealed record UpsertCategoryAttributeRequest
 public sealed record BrandDto
 {
     /// <summary>Unique brand identifier.</summary>
-    public Guid Id { get; init; }
+    public int Id { get; init; }
 
     /// <summary>Brand name.</summary>
     public string Name { get; init; } = string.Empty;

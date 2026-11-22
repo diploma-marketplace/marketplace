@@ -1,4 +1,5 @@
 using FutureShopBackend.Domain.Entities;
+using FutureShopBackend.Domain.Enums;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -21,13 +22,13 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
     public DbSet<Review> Reviews => Set<Review>();
 
-    // Enum -> рядок у нижньому регістрі ("unpaid", "fop", ...)
+    // Converts an Enum value to a lowercase string representation ("pending", "fop", "new", etc.)
     private static ValueConverter<TEnum, string> Lower<TEnum>() where TEnum : struct, Enum
         => new(v => v.ToString().ToLowerInvariant(), s => Enum.Parse<TEnum>(s, true));
 
     protected override void OnModelCreating(ModelBuilder b)
     {
-        base.OnModelCreating(b); // таблиці Identity (asp_net_*), імена в snake_case дає UseSnakeCaseNamingConvention()
+        base.OnModelCreating(b); // Identity tables (asp_net_*), snake_case naming via UseSnakeCaseNamingConvention()
 
         // ───────── ROLES (+ seed: admin, company, user) ─────────
         b.Entity<ApplicationRole>(e =>
@@ -46,11 +47,25 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             e.Property(u => u.PasswordHash).IsRequired();
             e.Property(u => u.FullName).IsRequired().HasMaxLength(200);
             e.Property(u => u.AvatarUrl).HasMaxLength(500);
-            e.Property(u => u.StatusType).HasConversion(Lower<SellerStatusType>()).HasMaxLength(20);
+            e.Property(u => u.SellerType).HasConversion(Lower<SellerType>()).HasMaxLength(20);
+            e.Property(u => u.VerificationStatus).HasConversion(Lower<VerificationStatus>()).HasMaxLength(20)
+                .HasDefaultValue(VerificationStatus.NotSubmitted);
+            e.Property(u => u.CompanyName).HasMaxLength(200);
+            e.Property(u => u.TaxIdentificationCode).HasMaxLength(20);
+            e.Property(u => u.Address).HasMaxLength(300);
+            e.Property(u => u.BankIban).HasMaxLength(34);
+            e.Property(u => u.WebsiteUrl).HasMaxLength(500);
+            e.Property(u => u.TelegramUrl).HasMaxLength(200);
+            e.Property(u => u.InstagramUrl).HasMaxLength(200);
+            e.Property(u => u.FacebookUrl).HasMaxLength(200);
+            e.Property(u => u.PreferredLanguage).HasConversion(Lower<InterfaceLanguage>()).HasMaxLength(10)
+                .HasDefaultValue(InterfaceLanguage.Uk);
+            e.Property(u => u.PreferredTheme).HasConversion(Lower<ThemeMode>()).HasMaxLength(20)
+                .HasDefaultValue(ThemeMode.System);
             e.Property(u => u.Rating).HasPrecision(3, 2).HasDefaultValue(0m);
             e.Property(u => u.CreatedAt).HasDefaultValueSql("now()");
 
-            // email UNIQUE (в Identity за замовчуванням індекс по NormalizedEmail не унікальний)
+            // Unique index on NormalizedEmail (Identity's default index is non-unique)
             e.HasIndex(u => u.NormalizedEmail).IsUnique();
 
             e.HasOne(u => u.Role).WithMany(r => r.Users)
@@ -81,7 +96,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             e.Property(p => p.Title).IsRequired().HasMaxLength(300);
             e.Property(p => p.Description).HasColumnType("text");
             e.Property(p => p.Price).HasPrecision(12, 2);
+            e.Property(p => p.Condition).HasConversion(Lower<ProductCondition>()).HasMaxLength(20)
+                .HasDefaultValue(ProductCondition.New);
             e.Property(p => p.IsMarketplace).HasDefaultValue(false);
+            e.Property(p => p.Rating).HasPrecision(3, 2).HasDefaultValue(0m);
+            e.Property(p => p.ReviewsCount).HasDefaultValue(0);
             e.Property(p => p.IsDeleted).HasDefaultValue(false);
             e.Property(p => p.CreatedAt).HasDefaultValueSql("now()");
 
@@ -152,6 +171,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
         {
             e.ToTable("wishlists");
             e.HasIndex(w => new { w.UserId, w.ProductId }).IsUnique();
+            e.Property(w => w.PriceAtAddition).HasPrecision(12, 2).HasDefaultValue(0m);
+            e.Property(w => w.CreatedAt).HasDefaultValueSql("now()");
 
             e.HasOne(w => w.User).WithMany(u => u.WishlistItems)
                 .HasForeignKey(w => w.UserId).OnDelete(DeleteBehavior.Cascade);
@@ -166,9 +187,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             e.Property(o => o.TotalPrice).HasPrecision(12, 2);
             e.Property(o => o.ShippingAddress).IsRequired().HasMaxLength(500);
             e.Property(o => o.PaymentStatus).HasConversion(Lower<PaymentStatus>()).HasMaxLength(20)
-                .HasDefaultValue(PaymentStatus.Unpaid);
+                .HasDefaultValue(PaymentStatus.Pending);
             e.Property(o => o.OrderStatus).HasConversion(Lower<OrderStatus>()).HasMaxLength(20)
-                .HasDefaultValue(OrderStatus.New);
+                .HasDefaultValue(OrderStatus.Created);
             e.Property(o => o.CreatedAt).HasDefaultValueSql("now()");
 
             e.HasOne(o => o.User).WithMany(u => u.Orders)
@@ -184,8 +205,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
                 t.HasCheckConstraint("ck_order_items_price_positive", "price_at_purchase > 0");
             });
             e.Property(i => i.PriceAtPurchase).HasPrecision(12, 2);
-            e.Property(i => i.ItemStatus).HasConversion(Lower<OrderItemStatus>()).HasMaxLength(20)
-                .HasDefaultValue(OrderItemStatus.New);
+            e.Property(i => i.OrderStatus).HasConversion(Lower<OrderStatus>()).HasMaxLength(20)
+                .HasDefaultValue(OrderStatus.Created);
             e.Property(i => i.TrackingNumber).HasMaxLength(100);
 
             e.HasOne(i => i.Order).WithMany(o => o.Items)
@@ -202,9 +223,12 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
             e.ToTable("reviews", t =>
             {
                 t.HasCheckConstraint("ck_reviews_rating_range", "rating BETWEEN 1 AND 5");
-                t.HasCheckConstraint("ck_reviews_single_target", "num_nonnulls(product_id, seller_id) = 1");
+                t.HasCheckConstraint("ck_reviews_single_target", "num_nonnulls(product_id, seller_id) >= 1");
             });
             e.Property(r => r.Comment).HasColumnType("text");
+            e.Property(r => r.Pros).HasMaxLength(500);
+            e.Property(r => r.Cons).HasMaxLength(500);
+            e.Property(r => r.SellerReply).HasMaxLength(2000);
             e.Property(r => r.CreatedAt).HasDefaultValueSql("now()");
 
             e.HasOne(r => r.User).WithMany(u => u.WrittenReviews)

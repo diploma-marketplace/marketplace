@@ -1,6 +1,7 @@
 using FutureShopBackend.Application.DTO.Catalog;
 using FutureShopBackend.Application.DTO.Common;
 using FutureShopBackend.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FutureShopBackend.Api.Controllers;
@@ -31,11 +32,11 @@ public class CategoriesController(ICategoryService categoryService) : Controller
     /// </summary>
     /// <param name="categoryId">Category identifier.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpGet("{categoryId:guid}/attributes")]
+    [HttpGet("{categoryId:int}/attributes")]
     [ProducesResponseType(typeof(IReadOnlyList<CategoryAttributeDefinitionDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IReadOnlyList<CategoryAttributeDefinitionDto>>> GetCategoryAttributes(
-        Guid categoryId,
+        int categoryId,
         CancellationToken cancellationToken)
     {
         var attributes = await categoryService.GetCategoryAttributesAsync(categoryId, cancellationToken);
@@ -47,6 +48,7 @@ public class CategoriesController(ICategoryService categoryService) : Controller
     /// </summary>
     /// <param name="request">Category and attribute definitions.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ProducesResponseType(typeof(CategoryTreeDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
@@ -66,14 +68,15 @@ public class CategoriesController(ICategoryService categoryService) : Controller
     /// <param name="categoryId">Category identifier.</param>
     /// <param name="request">Updated category and attribute definitions.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpPut("{categoryId:guid}")]
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{categoryId:int}")]
     [ProducesResponseType(typeof(CategoryTreeDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CategoryTreeDto>> UpdateCategory(
-        Guid categoryId,
+        int categoryId,
         [FromBody] UpsertCategoryRequest request,
         CancellationToken cancellationToken)
     {
@@ -86,13 +89,14 @@ public class CategoriesController(ICategoryService categoryService) : Controller
     /// </summary>
     /// <param name="categoryId">Category identifier.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpDelete("{categoryId:guid}")]
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{categoryId:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteCategory(Guid categoryId, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteCategory(int categoryId, CancellationToken cancellationToken)
     {
         await categoryService.DeleteCategoryAsync(categoryId, cancellationToken);
         return NoContent();

@@ -21,5 +21,5 @@ public interface IUserService
 /// </summary>
 public interface ISellerService
 {
-    Task<PublicSellerProfileResponse> GetSellerProfileAsync(Guid sellerId, CancellationToken cancellationToken = default);
+    Task<PublicSellerProfileResponse> GetSellerProfileAsync(int sellerId, CancellationToken cancellationToken = default);
 }

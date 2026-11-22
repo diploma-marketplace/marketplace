@@ -12,7 +12,8 @@ public enum UserRole
     Company,
 
     /// <summary>Platform administrator and marketplace operator.</summary>
-    Admin
+    Admin,
+    Guest
 }
 
 /// <summary>
@@ -43,9 +44,9 @@ public enum VerificationStatus
 /// </summary>
 public enum SellerType
 {
-    /// <summary>Official marketplace inventory sold directly by the platform.</summary>
+    FOP,
+    Company,
     Marketplace,
-
-    /// <summary>Inventory sold by third-party individuals, FOPs, or companies.</summary>
-    ThirdParty
+    ThirdParty,
+    Individual
 }

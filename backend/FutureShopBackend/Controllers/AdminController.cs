@@ -4,6 +4,7 @@ using FutureShopBackend.Application.DTO.Interaction;
 using FutureShopBackend.Application.DTO.Users;
 using FutureShopBackend.Application.Interfaces;
 using FutureShopBackend.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FutureShopBackend.Api.Controllers;
@@ -13,6 +14,7 @@ namespace FutureShopBackend.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/admin")]
+[Authorize(Roles = "Admin")]
 [Produces("application/json")]
 [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status403Forbidden)]
@@ -41,12 +43,12 @@ public class AdminController(IAdminService adminService) : ControllerBase
     /// <param name="userId">Target user identifier.</param>
     /// <param name="request">New account status and mandatory reason.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpPatch("users/{userId:guid}/status")]
+    [HttpPatch("users/{userId:int}/status")]
     [ProducesResponseType(typeof(AdminUserSummaryDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<AdminUserSummaryDto>> UpdateUserStatus(
-        Guid userId,
+        int userId,
         [FromBody] UpdateUserStatusRequest request,
         CancellationToken cancellationToken)
     {
@@ -60,12 +62,12 @@ public class AdminController(IAdminService adminService) : ControllerBase
     /// <param name="userId">Target user identifier.</param>
     /// <param name="request">New role and mandatory reason.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpPatch("users/{userId:guid}/role")]
+    [HttpPatch("users/{userId:int}/role")]
     [ProducesResponseType(typeof(AdminUserSummaryDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<AdminUserSummaryDto>> UpdateUserRole(
-        Guid userId,
+        int userId,
         [FromBody] UpdateUserRoleRequest request,
         CancellationToken cancellationToken)
     {
@@ -78,10 +80,10 @@ public class AdminController(IAdminService adminService) : ControllerBase
     /// </summary>
     /// <param name="userId">Target user identifier.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpDelete("users/{userId:guid}")]
+    [HttpDelete("users/{userId:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteUser(Guid userId, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteUser(int userId, CancellationToken cancellationToken)
     {
         await adminService.DeleteUserAsync(userId, cancellationToken);
         return NoContent();
@@ -111,12 +113,12 @@ public class AdminController(IAdminService adminService) : ControllerBase
     /// <param name="verificationId">Verification request identifier.</param>
     /// <param name="request">Decision status and optional reviewer comment.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpPatch("verifications/{verificationId:guid}")]
+    [HttpPatch("verifications/{verificationId:int}")]
     [ProducesResponseType(typeof(SellerVerificationResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<SellerVerificationResponse>> ReviewVerification(
-        Guid verificationId,
+        int verificationId,
         [FromBody] ReviewVerificationRequest request,
         CancellationToken cancellationToken)
     {
@@ -148,12 +150,12 @@ public class AdminController(IAdminService adminService) : ControllerBase
     /// <param name="reportId">Report identifier.</param>
     /// <param name="request">Resolution status and moderator note.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpPatch("reports/{reportId:guid}")]
+    [HttpPatch("reports/{reportId:int}")]
     [ProducesResponseType(typeof(ReportDetailsDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ReportDetailsDto>> ResolveReport(
-        Guid reportId,
+        int reportId,
         [FromBody] ResolveReportRequest request,
         CancellationToken cancellationToken)
     {

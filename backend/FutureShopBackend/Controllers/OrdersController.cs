@@ -1,6 +1,7 @@
 using FutureShopBackend.Application.DTO.Commerce;
 using FutureShopBackend.Application.DTO.Common;
 using FutureShopBackend.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FutureShopBackend.Api.Controllers;
@@ -10,6 +11,7 @@ namespace FutureShopBackend.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/orders")]
+[Authorize(Roles = "User, Company, Admin")]
 [Produces("application/json")]
 [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
 public class OrdersController(IOrderService orderService) : ControllerBase
@@ -73,13 +75,13 @@ public class OrdersController(IOrderService orderService) : ControllerBase
     /// </summary>
     /// <param name="orderId">Order identifier.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpGet("{orderId:guid}")]
+    [HttpGet("{orderId:int}")]
     [ProducesResponseType(typeof(OrderDetailsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<OrderDetailsResponse>> GetOrderById(
-        Guid orderId,
+        int orderId,
         CancellationToken cancellationToken)
     {
         var order = await orderService.GetOrderByIdAsync(orderId, cancellationToken);
@@ -92,14 +94,14 @@ public class OrdersController(IOrderService orderService) : ControllerBase
     /// <param name="orderId">Order identifier.</param>
     /// <param name="request">Target status, optional carrier tracking number, and comment.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpPatch("{orderId:guid}/status")]
+    [HttpPatch("{orderId:int}/status")]
     [ProducesResponseType(typeof(OrderDetailsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<OrderDetailsResponse>> UpdateOrderStatus(
-        Guid orderId,
+        int orderId,
         [FromBody] UpdateOrderStatusRequest request,
         CancellationToken cancellationToken)
     {

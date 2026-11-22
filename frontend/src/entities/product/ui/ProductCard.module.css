@@ -33,6 +33,28 @@
   border-radius: var(--radius-sm);
 }
 
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.meta {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.list {
+  flex-direction: row;
+  align-items: center;
+}
+
+.list .image {
+  flex: 0 0 160px;
+}
+
 @media (max-width: 768px) {
   .card {
     padding: var(--space-2);

@@ -1,6 +1,7 @@
 using FutureShopBackend.Application.DTO.Commerce;
 using FutureShopBackend.Application.DTO.Common;
 using FutureShopBackend.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FutureShopBackend.Api.Controllers;
@@ -10,6 +11,7 @@ namespace FutureShopBackend.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/payments")]
+[Authorize(Roles = "User, Company, Admin")]
 [Produces("application/json")]
 [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status500InternalServerError)]
 public class PaymentsController(IPaymentService paymentService) : ControllerBase
@@ -39,14 +41,14 @@ public class PaymentsController(IPaymentService paymentService) : ControllerBase
     /// <param name="paymentId">Payment transaction identifier.</param>
     /// <param name="request">Simulated payment outcome.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpPost("{paymentId:guid}/confirm")]
+    [HttpPost("{paymentId:int}/confirm")]
     [ProducesResponseType(typeof(PaymentDetailsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PaymentDetailsResponse>> ConfirmTestPayment(
-        Guid paymentId,
+        int paymentId,
         [FromBody] ConfirmTestPaymentRequest request,
         CancellationToken cancellationToken)
     {
@@ -59,13 +61,13 @@ public class PaymentsController(IPaymentService paymentService) : ControllerBase
     /// </summary>
     /// <param name="orderId">Order identifier.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpGet("order/{orderId:guid}")]
+    [HttpGet("order/{orderId:int}")]
     [ProducesResponseType(typeof(PaymentDetailsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PaymentDetailsResponse>> GetPaymentByOrderId(
-        Guid orderId,
+        int orderId,
         CancellationToken cancellationToken)
     {
         var payment = await paymentService.GetPaymentByOrderIdAsync(orderId, cancellationToken);

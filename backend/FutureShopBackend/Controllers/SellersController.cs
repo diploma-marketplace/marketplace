@@ -19,12 +19,12 @@ public class SellersController(ISellerService sellerService) : ControllerBase
     /// </summary>
     /// <param name="sellerId">Unique seller identifier.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpGet("{sellerId:guid}")]
+    [HttpGet("{sellerId:int}")]
     [ProducesResponseType(typeof(PublicSellerProfileResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PublicSellerProfileResponse>> GetSellerProfile(
-        Guid sellerId,
+        int sellerId,
         CancellationToken cancellationToken)
     {
         var profile = await sellerService.GetSellerProfileAsync(sellerId, cancellationToken);
