@@ -40,6 +40,11 @@ namespace FutureShopBackend.Infrastructure
             services.AddScoped<IUserService>(sp => sp.GetRequiredService<UserService>());
             services.AddScoped<ISellerService>(sp => sp.GetRequiredService<UserService>());
 
+            // Catalog, search, filtering, and category services
+            services.AddScoped<CatalogService>();
+            services.AddScoped<IProductService>(sp => sp.GetRequiredService<CatalogService>());
+            services.AddScoped<ICategoryService>(sp => sp.GetRequiredService<CatalogService>());
+
             return services;
         }
     }

@@ -22,6 +22,7 @@ public class ProductsController(IProductService productService) : ControllerBase
     /// <param name="query">Search, filter, sort, and pagination parameters.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
     [HttpGet]
+    [HttpGet("search")]
     [ProducesResponseType(typeof(PagedResponse<ProductCardDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<PagedResponse<ProductCardDto>>> SearchProducts(
@@ -33,12 +34,14 @@ public class ProductsController(IProductService productService) : ControllerBase
     }
 
     /// <summary>
-    /// Returns real-time autocomplete suggestions (queries, categories, and top products) as the user types in the search bar.
+    /// Returns real-time autocomplete suggestions (queries, categories, and top products) as the user types in the search bar (live search).
     /// </summary>
     /// <param name="q">Search prefix typed by the user.</param>
+    /// <param name="query">Alternative search prefix query parameter.</param>
     /// <param name="limit">Maximum number of suggestions to return.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
     [HttpGet("suggestions")]
+    [HttpGet("live-search")]
     [ProducesResponseType(typeof(SearchSuggestionsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<SearchSuggestionsResponse>> GetSearchSuggestions(
