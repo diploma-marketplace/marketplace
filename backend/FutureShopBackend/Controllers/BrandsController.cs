@@ -53,14 +53,14 @@ public class BrandsController(IBrandService brandService) : ControllerBase
     /// <param name="request">Updated brand payload.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
     [Authorize(Roles = "Admin")]
-    [HttpPut("{brandId:guid}")]
+    [HttpPut("{brandId:int}")]
     [ProducesResponseType(typeof(BrandDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<BrandDto>> UpdateBrand(
-        Guid brandId,
+        int brandId,
         [FromBody] UpsertBrandRequest request,
         CancellationToken cancellationToken)
     {
@@ -74,12 +74,12 @@ public class BrandsController(IBrandService brandService) : ControllerBase
     /// <param name="brandId">Brand identifier.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
     [Authorize(Roles = "Admin")]
-    [HttpDelete("{brandId:guid}")]
+    [HttpDelete("{brandId:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteBrand(Guid brandId, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteBrand(int brandId, CancellationToken cancellationToken)
     {
         await brandService.DeleteBrandAsync(brandId, cancellationToken);
         return NoContent();

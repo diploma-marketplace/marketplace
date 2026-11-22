@@ -1,3 +1,4 @@
+using FutureShopBackend.Application.DTO.Catalog;
 using FutureShopBackend.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 
@@ -27,7 +28,7 @@ public sealed record SocialLinksDto
 public sealed record UserProfileResponse
 {
     /// <summary>Unique user identifier.</summary>
-    public Guid Id { get; init; }
+    public int Id { get; init; }
 
     /// <summary>Account email address.</summary>
     public string Email { get; init; } = string.Empty;
@@ -97,7 +98,7 @@ public sealed record UserProfileResponse
 }
 
 /// <summary>
-/// Request payload for updating the authenticated user's profile and UI preferences.
+/// Request payload for updating the authenticated user's profile, optional password change, and UI preferences.
 /// </summary>
 public sealed record UpdateProfileRequest
 {
@@ -112,9 +113,15 @@ public sealed record UpdateProfileRequest
     public string? PhoneNumber { get; init; }
 
     /// <summary>Avatar image URL.</summary>
-    [Url]
     [StringLength(500)]
     public string? AvatarUrl { get; init; }
+
+    /// <summary>Current password (required when NewPassword is provided to change password via profile update).</summary>
+    public string? CurrentPassword { get; init; }
+
+    /// <summary>New password (optional; if provided, updates the user's password).</summary>
+    [StringLength(128, MinimumLength = 8)]
+    public string? NewPassword { get; init; }
 
     /// <summary>Public store or company display name.</summary>
     [StringLength(200)]
@@ -155,7 +162,7 @@ public sealed record ChangePasswordRequest
 }
 
 /// <summary>
-/// Request payload for submitting FOP (sole proprietor) or Company verification credentials.
+/// Request payload for submitting FOP (sole proprietor) or Company verification credentials (EDRPOU / RNOKPP).
 /// </summary>
 public sealed record SubmitSellerVerificationRequest
 {
@@ -163,24 +170,21 @@ public sealed record SubmitSellerVerificationRequest
     public bool IsSoleProprietor { get; init; }
 
     /// <summary>Registered business or company name.</summary>
-    [Required]
     [StringLength(200)]
-    public required string LegalEntityName { get; init; }
+    public string? LegalEntityName { get; init; }
 
-    /// <summary>RNOKPP (for FOP) or EDRPOU (for Company) registration number.</summary>
+    /// <summary>RNOKPP (for FOP, 10 digits) or EDRPOU (for Company, 8 digits) registration number.</summary>
     [Required]
     [StringLength(16, MinimumLength = 8)]
     public required string TaxIdentificationCode { get; init; }
 
     /// <summary>Registered legal address.</summary>
-    [Required]
     [StringLength(300)]
-    public required string LegalAddress { get; init; }
+    public string? LegalAddress { get; init; }
 
     /// <summary>IBAN bank account for payouts.</summary>
-    [Required]
-    [StringLength(34, MinimumLength = 15)]
-    public required string BankIban { get; init; }
+    [StringLength(34)]
+    public string? BankIban { get; init; }
 
     /// <summary>Additional notes or links to registration documents.</summary>
     [StringLength(1000)]
@@ -193,10 +197,10 @@ public sealed record SubmitSellerVerificationRequest
 public sealed record SellerVerificationResponse
 {
     /// <summary>Verification request identifier.</summary>
-    public Guid VerificationId { get; init; }
+    public int VerificationId { get; init; }
 
     /// <summary>Applicant user identifier.</summary>
-    public Guid UserId { get; init; }
+    public int UserId { get; init; }
 
     /// <summary>Registered legal entity or FOP name.</summary>
     public string LegalEntityName { get; init; } = string.Empty;
@@ -215,15 +219,18 @@ public sealed record SellerVerificationResponse
 }
 
 /// <summary>
-/// Public seller profile displayed to buyers on product and seller pages.
+/// Public seller profile displayed to buyers on product and seller pages (excludes private tax/banking data).
 /// </summary>
 public sealed record PublicSellerProfileResponse
 {
     /// <summary>Seller identifier.</summary>
-    public Guid Id { get; init; }
+    public int Id { get; init; }
 
     /// <summary>Display name or company title.</summary>
     public string DisplayName { get; init; } = string.Empty;
+
+    /// <summary>Company or FOP business name (if applicable).</summary>
+    public string? CompanyName { get; init; }
 
     /// <summary>Profile avatar or company logo URL.</summary>
     public string? AvatarUrl { get; init; }
@@ -231,7 +238,7 @@ public sealed record PublicSellerProfileResponse
     /// <summary>Role of the seller (User, Company, Admin/Marketplace).</summary>
     public UserRole Role { get; init; }
 
-    /// <summary>Type of seller (Marketplace vs ThirdParty).</summary>
+    /// <summary>Type of seller (FOP, Company, Individual, Marketplace).</summary>
     public SellerType SellerType { get; init; }
 
     /// <summary>Whether the seller is an officially verified FOP or Company.</summary>
@@ -260,6 +267,9 @@ public sealed record PublicSellerProfileResponse
 
     /// <summary>Number of active products currently listed by the seller.</summary>
     public int ActiveProductsCount { get; init; }
+
+    /// <summary>Active product listings offered by this seller.</summary>
+    public IReadOnlyList<ProductCardDto> Products { get; init; } = [];
 
     /// <summary>Date when the seller joined the marketplace.</summary>
     public DateTimeOffset JoinedAt { get; init; }

@@ -45,5 +45,8 @@ public enum VerificationStatus
 public enum SellerType
 {
     FOP,
-    Company
+    Company,
+    Marketplace,
+    ThirdParty,
+    Individual
 }

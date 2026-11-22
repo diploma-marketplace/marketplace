@@ -21,12 +21,12 @@ public class ReviewsController(IReviewService reviewService) : ControllerBase
     /// <param name="productId">Product identifier.</param>
     /// <param name="query">Pagination parameters.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpGet("product/{productId:guid}")]
+    [HttpGet("product/{productId:int}")]
     [ProducesResponseType(typeof(PagedResponse<ReviewDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PagedResponse<ReviewDto>>> GetProductReviews(
-        Guid productId,
+        int productId,
         [FromQuery] PaginationQuery query,
         CancellationToken cancellationToken)
     {
@@ -40,12 +40,12 @@ public class ReviewsController(IReviewService reviewService) : ControllerBase
     /// <param name="sellerId">Seller identifier.</param>
     /// <param name="query">Pagination parameters.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpGet("seller/{sellerId:guid}")]
+    [HttpGet("seller/{sellerId:int}")]
     [ProducesResponseType(typeof(PagedResponse<ReviewDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PagedResponse<ReviewDto>>> GetSellerReviews(
-        Guid sellerId,
+        int sellerId,
         [FromQuery] PaginationQuery query,
         CancellationToken cancellationToken)
     {
@@ -98,14 +98,14 @@ public class ReviewsController(IReviewService reviewService) : ControllerBase
     /// <param name="request">Seller reply text.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
     [Authorize(Roles = "User, Company, Admin")]
-    [HttpPost("{reviewId:guid}/reply")]
+    [HttpPost("{reviewId:int}/reply")]
     [ProducesResponseType(typeof(ReviewDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ReviewDto>> ReplyToReview(
-        Guid reviewId,
+        int reviewId,
         [FromBody] ReplyToReviewRequest request,
         CancellationToken cancellationToken)
     {
@@ -119,12 +119,12 @@ public class ReviewsController(IReviewService reviewService) : ControllerBase
     /// <param name="reviewId">Review identifier.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
     [Authorize(Roles = "User, Company, Admin")]
-    [HttpDelete("{reviewId:guid}")]
+    [HttpDelete("{reviewId:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteReview(Guid reviewId, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteReview(int reviewId, CancellationToken cancellationToken)
     {
         await reviewService.DeleteReviewAsync(reviewId, cancellationToken);
         return NoContent();
