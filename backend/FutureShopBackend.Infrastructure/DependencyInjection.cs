@@ -51,6 +51,9 @@ namespace FutureShopBackend.Infrastructure
             services.AddScoped<IWishlistService>(sp => sp.GetRequiredService<CommerceService>());
             services.AddScoped<IOrderService>(sp => sp.GetRequiredService<CommerceService>());
 
+            // Reviews and automatic product/seller rating recalculation service
+            services.AddScoped<IReviewService, ReviewService>();
+
             return services;
         }
     }
