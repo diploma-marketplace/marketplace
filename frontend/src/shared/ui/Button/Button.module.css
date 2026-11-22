@@ -20,7 +20,7 @@
   color: var(--color-surface-text);
 }
 
-.ghost{
+.ghost {
   background: transparent;
   color: var(--button-ghost-color);
   border-color: transparent;

@@ -1,48 +1,48 @@
 .dialog {
-    padding: 0;
-    border: none;
-    background: transparent;
-    overflow: visible;
-    color: var(--color-text);
-    max-width: calc(100vw - 2 * var(--space-4));
+  padding: 0;
+  border: none;
+  background: transparent;
+  overflow: visible;
+  color: var(--color-text);
+  max-width: calc(100vw - 2 * var(--space-4));
 }
 
 .dialog::backdrop {
-    background: var(--color-component-bg);
+  background: var(--color-component-bg);
 }
 
 .content {
-    position: relative;
-    width: 340px;
-    max-width: 100%;
-    max-height: calc(100dvh - 2 * var(--space-4));
-    overflow-y: auto;
-    padding: var(--space-5);
-    background: var(--color-bg);
-    border-radius: var(--radius-md);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  position: relative;
+  width: 340px;
+  max-width: 100%;
+  max-height: calc(100dvh - 2 * var(--space-4));
+  overflow-y: auto;
+  padding: var(--space-5);
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 }
 
 .close {
-    position: absolute;
-    top: var(--space-2);
-    right: var(--space-2);
-    width: 32px;
-    height: 32px;
-    border: none;
-    border-radius: var(--radius-full);
-    background: transparent;
-    color: var(--color-text-muted);
-    font-size: 1.5rem;
-    line-height: 1;
-    cursor: pointer;
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
 }
 
 .close:hover {
-    color: var(--color-text);
+  color: var(--color-text);
 }
 
 .close:focus-visible {
-    outline: 2px solid var(--color-button);
-    outline-offset: 2px;
+  outline: 2px solid var(--color-button);
+  outline-offset: 2px;
 }

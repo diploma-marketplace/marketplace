@@ -1,54 +1,54 @@
-import {type ReactNode, useCallback, useEffect, useMemo, useState} from "react";
-import {AuthContext, type AuthContextValue, type AuthStatus} from'./auth.context';
-import {authApi, type LoginPayload, type RegisterPayload, type AuthSession} from '../api/authApi'
+import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { AuthContext, type AuthContextValue, type AuthStatus } from './auth.context';
+import { authApi, type LoginPayload, type RegisterPayload, type AuthSession } from '../api/authApi';
 
-export function AuthProvider({children}: {children: ReactNode}){
-    const [session, setSession] = useState<AuthSession | null>(null);
-    const [status, setStatus] = useState<AuthStatus>('loading');
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [session, setSession] = useState<AuthSession | null>(null);
+  const [status, setStatus] = useState<AuthStatus>('loading');
 
-    useEffect(() => {
-        const controller = new AbortController();
+  useEffect(() => {
+    const controller = new AbortController();
 
-        authApi
-            .me(controller.signal)
-            .then((current) => {
-                setSession(current);
-                setStatus('authenticated');
-            })
-            .catch((error: unknown) => {
-                if(error instanceof DOMException && error.name === "AbortError") return;
-                setSession(null);
-                setStatus('anonymous');
-            });
-
-        return () => controller.abort();
-    }, []);
-
-    const login = useCallback(async (payload: LoginPayload)=> {
-        const next = await authApi.login(payload);
-        setSession(next);
+    authApi
+      .me(controller.signal)
+      .then((current) => {
+        setSession(current);
         setStatus('authenticated');
-    }, []);
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+        setSession(null);
+        setStatus('anonymous');
+      });
 
-    const register = useCallback(async (payload: RegisterPayload)=> {
-        const next = await authApi.register(payload);
-        setSession(next);
-        setStatus('authenticated');
-    }, []);
+    return () => controller.abort();
+  }, []);
 
-    const logout = useCallback(async () => {
-        try{
-            await authApi.logout();
-        } finally{
-            setSession(null);
-            setStatus('anonymous');
-        }
-    }, []);
+  const login = useCallback(async (payload: LoginPayload) => {
+    const next = await authApi.login(payload);
+    setSession(next);
+    setStatus('authenticated');
+  }, []);
 
-    const value = useMemo<AuthContextValue>(
-        () => ({ status, session, login, register, logout}),
-        [status, session, login, register, logout],
-    );
+  const register = useCallback(async (payload: RegisterPayload) => {
+    const next = await authApi.register(payload);
+    setSession(next);
+    setStatus('authenticated');
+  }, []);
 
-    return <AuthContext value={value}>{children}</AuthContext>
+  const logout = useCallback(async () => {
+    try {
+      await authApi.logout();
+    } finally {
+      setSession(null);
+      setStatus('anonymous');
+    }
+  }, []);
+
+  const value = useMemo<AuthContextValue>(
+    () => ({ status, session, login, register, logout }),
+    [status, session, login, register, logout],
+  );
+
+  return <AuthContext value={value}>{children}</AuthContext>;
 }
