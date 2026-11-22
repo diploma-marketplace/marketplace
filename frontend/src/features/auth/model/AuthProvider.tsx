@@ -45,9 +45,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const refreshSession = useCallback(async () => {
+    try {
+      setSession(await authApi.me());
+    } catch {
+      // keep the current session; it is checked again on the next page load
+    }
+  }, []);
+
   const value = useMemo<AuthContextValue>(
-    () => ({ status, session, login, register, logout }),
-    [status, session, login, register, logout],
+    () => ({ status, session, login, register, logout, refreshSession }),
+    [status, session, login, register, logout, refreshSession],
   );
 
   return <AuthContext value={value}>{children}</AuthContext>;

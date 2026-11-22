@@ -8,15 +8,15 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <MainLayout />,
-      children: [
-          {
-              element: <SidebarLayout />,
-              children: [
-                  { index: true, element: <HomePage /> },
-                  { path: 'catalog', element: <CatalogPage /> },
-              ],
-          },
-          { path: 'profile', element: <ProfilePage /> },
-      ],
+    children: [
+      {
+        element: <SidebarLayout />,
+        children: [
+          { index: true, element: <HomePage /> },
+          { path: 'catalog', element: <CatalogPage /> },
+        ],
+      },
+      { path: 'profile', element: <ProfilePage /> },
+    ],
   },
 ]);
