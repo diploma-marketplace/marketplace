@@ -20,7 +20,7 @@
   color: var(--color-surface-text);
 }
 
-.ghost{
+.ghost {
   background: transparent;
   color: var(--button-ghost-color);
   border-color: transparent;
@@ -28,4 +28,9 @@
 
 .ghost:hover {
   text-decoration: underline;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

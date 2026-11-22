@@ -1,84 +1,84 @@
 .carousel {
-    position: relative;
+  position: relative;
 }
 
 .viewport {
-    overflow: hidden;
-    border-radius: var(--radius-sm);
+  overflow: hidden;
+  border-radius: var(--radius-sm);
 }
 
 .track {
-    display: flex;
-    transition: transform 0.4s ease;
+  display: flex;
+  transition: transform 0.4s ease;
 }
 
 .slide {
-    flex: 0 0 100%;
-    min-width: 0;
+  flex: 0 0 100%;
+  min-width: 0;
 }
 
 .arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    display: grid;
-    place-items: center;
-    width: 36px;
-    height: 36px;
-    padding: 0 0 3px;
-    border: 0;
-    border-radius: var(--radius-full);
-    background: var(--color-surface);
-    color: var(--color-surface-text);
-    font-size: 1.5rem;
-    line-height: 1;
-    opacity: 0.85;
-    cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0 0 3px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-surface-text);
+  font-size: 1.5rem;
+  line-height: 1;
+  opacity: 0.85;
+  cursor: pointer;
 }
 
 .arrow:hover {
-    opacity: 1;
+  opacity: 1;
 }
 
 .prev {
-    left: var(--space-3);
+  left: var(--space-3);
 }
 
 .next {
-    right: var(--space-3);
+  right: var(--space-3);
 }
 
 .dots {
-    position: absolute;
-    bottom: var(--space-2);
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: var(--space-2);
+  position: absolute;
+  bottom: var(--space-2);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: var(--space-2);
 }
 
 .dot {
-    width: 12px;
-    height: 12px;
-    padding: 0;
-    border: 0;
-    border-radius: var(--radius-full);
-    background: var(--color-component-bg);
-    cursor: pointer;
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-component-bg);
+  cursor: pointer;
 }
 
 .dotActive {
-    background: var(--color-surface);
+  background: var(--color-surface);
 }
 
 .arrow:focus-visible,
 .dot:focus-visible {
-    outline: 2px solid var(--color-button);
-    outline-offset: 2px;
+  outline: 2px solid var(--color-button);
+  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .track {
-        transition: none;
-    }
+  .track {
+    transition: none;
+  }
 }

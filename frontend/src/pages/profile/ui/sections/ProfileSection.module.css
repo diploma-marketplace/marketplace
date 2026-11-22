@@ -1,0 +1,19 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-product-bg);
+  color: var(--color-text);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.section > p {
+  margin: 0;
+  color: var(--color-text-muted);
+}

@@ -1,0 +1,46 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--color-button);
+  color: var(--color-button-text);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.info {
+  min-width: 0;
+}
+
+.info p {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.name {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.email,
+.meta {
+  color: var(--color-text-muted);
+}

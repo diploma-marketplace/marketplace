@@ -1,5 +1,5 @@
-import styles from './HomePage.module.css'
-import {BannerSection, CategorySection, RecommendedSection} from './sections';
+import styles from './HomePage.module.css';
+import { BannerSection, CategorySection, RecommendedSection } from './sections';
 
 export function HomePage() {
   return (
