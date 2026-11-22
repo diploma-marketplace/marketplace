@@ -1,69 +1,11 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PreferencesContext, type Language, type Theme } from './PreferencesContext';
 
-const translations: Record<Language, Record<string, string>> = {
-  uk: {
-    home: 'Головна',
-    login: 'Увійти',
-    signup: 'Реєстрація',
-    search: 'Пошук...',
-    searchLabel: 'Пошук',
-    categories: 'Категорії',
-    recommended: 'Рекомендовані товари',
-    promotions: 'Акції',
-    marketplace: 'Від маркетплейсу',
-    company: 'Від компанії',
-    'third-party': 'Від продавця',
-    electronics: 'Електроніка',
-    appliances: 'Побутова техніка',
-    fashion: 'Одяг',
-    home_garden: 'Дім та сад',
-    sports: 'Спорт',
-    kids: 'Дитячі товари',
-    auto: 'Авто',
-    previousSlide: 'Попередній слайд',
-    nextSlide: 'Наступний слайд',
-    goToSlide: 'Перейти до слайду',
-    language: 'Мова',
-    theme: 'Тема',
-    light: 'Світла',
-    dark: 'Темна',
-    system: 'Системна',
-    footer: '© Future Market',
-  },
-  en: {
-    home: 'Home',
-    login: 'Log In',
-    signup: 'Sign Up',
-    search: 'Search...',
-    searchLabel: 'Search',
-    categories: 'Categories',
-    recommended: 'Recommended products',
-    promotions: 'Promotions',
-    marketplace: 'From marketplace',
-    company: 'From a company',
-    'third-party': 'From a seller',
-    electronics: 'Electronics',
-    appliances: 'Home appliances',
-    fashion: 'Clothing',
-    home_garden: 'Home & Garden',
-    sports: 'Sports',
-    kids: 'Kids',
-    auto: 'Auto',
-    previousSlide: 'Previous slide',
-    nextSlide: 'Next slide',
-    goToSlide: 'Go to slide',
-    language: 'Language',
-    theme: 'Theme',
-    light: 'Light',
-    dark: 'Dark',
-    system: 'System',
-    footer: '© Future Market',
-  },
-};
-
 export function PreferencesProvider({ children }: { children: ReactNode }) {
+  const { t, i18n } = useTranslation();
+
   const [language, setLanguage] = useState<Language>(() => {
     return localStorage.getItem('marketplace-language') === 'en' ? 'en' : 'uk';
   });
@@ -76,7 +18,8 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem('marketplace-language', language);
     document.documentElement.lang = language;
-  }, [language]);
+    void i18n.changeLanguage(language);
+  }, [language, i18n]);
 
   useEffect(() => {
     localStorage.setItem('marketplace-theme', theme);
@@ -106,9 +49,9 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
       setLanguage,
       theme,
       setTheme,
-      t: (key: string) => translations[language][key] ?? key,
+      t: (key: string) => String(t(key)),
     }),
-    [language, theme],
+    [language, theme, t],
   );
 
   return (
