@@ -48,7 +48,7 @@ public sealed record CreateOrderRequest
     /// <summary>
     /// Optional subset of seller IDs from the cart to checkout (if omitted, checks out all seller groups in the cart).
     /// </summary>
-    public IReadOnlyList<Guid>? SellerIds { get; init; }
+    public IReadOnlyList<int>? SellerIds { get; init; }
 }
 
 /// <summary>
@@ -64,7 +64,7 @@ public sealed record OrderFilterQuery : PaginationQuery
 /// </summary>
 public sealed record OrderItemDto
 {
-    public Guid ProductId { get; init; }
+    public int ProductId { get; init; }
     public string ProductTitle { get; init; } = string.Empty;
     public string? ProductImageUrl { get; init; }
     public decimal UnitPriceUah { get; init; }
@@ -77,11 +77,11 @@ public sealed record OrderItemDto
 /// </summary>
 public sealed record OrderSummaryDto
 {
-    public Guid Id { get; init; }
+    public int Id { get; init; }
     public string OrderNumber { get; init; } = string.Empty;
-    public Guid BuyerId { get; init; }
+    public int BuyerId { get; init; }
     public string BuyerName { get; init; } = string.Empty;
-    public Guid SellerId { get; init; }
+    public int SellerId { get; init; }
     public string SellerName { get; init; } = string.Empty;
     public OrderStatus Status { get; init; }
     public PaymentStatus PaymentStatus { get; init; }
@@ -96,11 +96,11 @@ public sealed record OrderSummaryDto
 /// </summary>
 public sealed record OrderDetailsResponse
 {
-    public Guid Id { get; init; }
+    public int Id { get; init; }
     public string OrderNumber { get; init; } = string.Empty;
-    public Guid BuyerId { get; init; }
+    public int BuyerId { get; init; }
     public string BuyerName { get; init; } = string.Empty;
-    public Guid SellerId { get; init; }
+    public int SellerId { get; init; }
     public string SellerName { get; init; } = string.Empty;
     public OrderStatus Status { get; init; }
     public PaymentMethod PaymentMethod { get; init; }
@@ -146,7 +146,7 @@ public sealed record UpdateOrderStatusRequest
 public sealed record InitiateTestPaymentRequest
 {
     [Required]
-    public Guid OrderId { get; init; }
+    public int OrderId { get; init; }
 }
 
 /// <summary>
@@ -167,8 +167,8 @@ public sealed record ConfirmTestPaymentRequest
 /// </summary>
 public sealed record PaymentDetailsResponse
 {
-    public Guid PaymentId { get; init; }
-    public Guid OrderId { get; init; }
+    public int PaymentId { get; init; }
+    public int OrderId { get; init; }
     public decimal AmountUah { get; init; }
     public PaymentMethod Method { get; init; }
     public PaymentStatus Status { get; init; }

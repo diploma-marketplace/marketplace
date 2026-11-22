@@ -1,5 +1,10 @@
-﻿namespace FutureShopBackend.Domain.Entities
+using FutureShopBackend.Domain.Enums;
+
+namespace FutureShopBackend.Domain.Entities
 {
+    /// <summary>
+    /// Hierarchical product category supporting dynamic specification attributes.
+    /// </summary>
     public class Category
     {
         public int Id { get; set; }
@@ -14,6 +19,9 @@
         public ICollection<ProductAttribute> Attributes { get; set; } = new List<ProductAttribute>();
     }
 
+    /// <summary>
+    /// Product listing offered either by the first-party Marketplace or by a third-party seller.
+    /// </summary>
     public class Product
     {
         public int Id { get; set; }
@@ -28,8 +36,11 @@
         public string? Description { get; set; }
         public decimal Price { get; set; }
         public int StockQuantity { get; set; }
+        public ProductCondition Condition { get; set; } = ProductCondition.New;
         public bool IsMarketplace { get; set; }
-        public bool IsDeleted { get; set; } // soft delete
+        public decimal Rating { get; set; }
+        public int ReviewsCount { get; set; }
+        public bool IsDeleted { get; set; } // Soft delete flag
         public DateTime CreatedAt { get; set; }
 
         public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
@@ -37,18 +48,21 @@
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 
+    /// <summary>
+    /// Product gallery image ordered by SortOrder.
+    /// </summary>
     public class ProductImage
     {
         public int Id { get; set; }
         public int ProductId { get; set; }
         public Product Product { get; set; } = null!;
 
-        public string FilePath { get; set; } = string.Empty; // шлях для Nginx
+        public string FilePath { get; set; } = string.Empty; // Relative path or URL served via Nginx
         public int SortOrder { get; set; }
     }
 
-    // Назва ProductAttribute (а не Attribute), щоб не конфліктувати з System.Attribute.
-    // Таблиця в БД називається "attributes".
+    // Named ProductAttribute (instead of Attribute) to avoid conflict with System.Attribute.
+    // Mapped to the "attributes" table in PostgreSQL.
     public class ProductAttribute
     {
         public int Id { get; set; }
@@ -60,6 +74,9 @@
         public ICollection<ProductAttributeValue> Values { get; set; } = new List<ProductAttributeValue>();
     }
 
+    /// <summary>
+    /// Specification value assigned to a product for a specific category attribute.
+    /// </summary>
     public class ProductAttributeValue
     {
         public int Id { get; set; }

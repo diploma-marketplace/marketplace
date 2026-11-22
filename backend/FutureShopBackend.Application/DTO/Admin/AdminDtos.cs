@@ -21,7 +21,7 @@ public sealed record AdminUserFilterQuery : PaginationQuery
 /// </summary>
 public sealed record AdminUserSummaryDto
 {
-    public Guid Id { get; init; }
+    public int Id { get; init; }
     public string Email { get; init; } = string.Empty;
     public string FullName { get; init; } = string.Empty;
     public string? CompanyName { get; init; }
@@ -124,8 +124,8 @@ public sealed record PlatformAnalyticsResponse
 /// </summary>
 public sealed record AuditLogEntryDto
 {
-    public Guid Id { get; init; }
-    public Guid ActorUserId { get; init; }
+    public int Id { get; init; }
+    public int ActorUserId { get; init; }
     public string ActorEmail { get; init; } = string.Empty;
     public string Action { get; init; } = string.Empty;
     public string TargetEntityType { get; init; } = string.Empty;
