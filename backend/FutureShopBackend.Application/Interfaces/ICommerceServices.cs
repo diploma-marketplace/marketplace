@@ -10,8 +10,8 @@ public interface ICartService
 {
     Task<CartResponse> GetMyCartAsync(CancellationToken cancellationToken = default);
     Task<CartResponse> AddItemAsync(AddCartItemRequest request, CancellationToken cancellationToken = default);
-    Task<CartResponse> UpdateItemQuantityAsync(Guid productId, UpdateCartItemQuantityRequest request, CancellationToken cancellationToken = default);
-    Task<CartResponse> RemoveItemAsync(Guid productId, CancellationToken cancellationToken = default);
+    Task<CartResponse> UpdateItemQuantityAsync(int productId, UpdateCartItemQuantityRequest request, CancellationToken cancellationToken = default);
+    Task<CartResponse> RemoveItemAsync(int productId, CancellationToken cancellationToken = default);
     Task ClearCartAsync(CancellationToken cancellationToken = default);
 }
 
@@ -21,8 +21,8 @@ public interface ICartService
 public interface IWishlistService
 {
     Task<PagedResponse<WishlistItemDto>> GetMyWishlistAsync(PaginationQuery query, CancellationToken cancellationToken = default);
-    Task<WishlistItemDto> AddToWishlistAsync(Guid productId, CancellationToken cancellationToken = default);
-    Task RemoveFromWishlistAsync(Guid productId, CancellationToken cancellationToken = default);
+    Task<WishlistItemDto> AddToWishlistAsync(int productId, CancellationToken cancellationToken = default);
+    Task RemoveFromWishlistAsync(int productId, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -33,8 +33,8 @@ public interface IOrderService
     Task<CheckoutOrdersResponse> CreateOrdersFromCartAsync(CreateOrderRequest request, CancellationToken cancellationToken = default);
     Task<PagedResponse<OrderSummaryDto>> GetMyBuyerOrdersAsync(OrderFilterQuery query, CancellationToken cancellationToken = default);
     Task<PagedResponse<OrderSummaryDto>> GetMySellerOrdersAsync(OrderFilterQuery query, CancellationToken cancellationToken = default);
-    Task<OrderDetailsResponse> GetOrderByIdAsync(Guid orderId, CancellationToken cancellationToken = default);
-    Task<OrderDetailsResponse> UpdateOrderStatusAsync(Guid orderId, UpdateOrderStatusRequest request, CancellationToken cancellationToken = default);
+    Task<OrderDetailsResponse> GetOrderByIdAsync(int orderId, CancellationToken cancellationToken = default);
+    Task<OrderDetailsResponse> UpdateOrderStatusAsync(int orderId, UpdateOrderStatusRequest request, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -43,6 +43,6 @@ public interface IOrderService
 public interface IPaymentService
 {
     Task<PaymentDetailsResponse> InitiateTestPaymentAsync(InitiateTestPaymentRequest request, CancellationToken cancellationToken = default);
-    Task<PaymentDetailsResponse> ConfirmTestPaymentAsync(Guid paymentId, ConfirmTestPaymentRequest request, CancellationToken cancellationToken = default);
-    Task<PaymentDetailsResponse> GetPaymentByOrderIdAsync(Guid orderId, CancellationToken cancellationToken = default);
+    Task<PaymentDetailsResponse> ConfirmTestPaymentAsync(int paymentId, ConfirmTestPaymentRequest request, CancellationToken cancellationToken = default);
+    Task<PaymentDetailsResponse> GetPaymentByOrderIdAsync(int orderId, CancellationToken cancellationToken = default);
 }

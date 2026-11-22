@@ -57,14 +57,14 @@ public class ConversationsController(IConversationService conversationService) :
     /// <param name="conversationId">Conversation identifier.</param>
     /// <param name="query">Pagination parameters.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpGet("{conversationId:guid}/messages")]
+    [HttpGet("{conversationId:int}/messages")]
     [ProducesResponseType(typeof(PagedResponse<ChatMessageDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PagedResponse<ChatMessageDto>>> GetMessages(
-        Guid conversationId,
+        int conversationId,
         [FromQuery] PaginationQuery query,
         CancellationToken cancellationToken)
     {
@@ -78,14 +78,14 @@ public class ConversationsController(IConversationService conversationService) :
     /// <param name="conversationId">Conversation identifier.</param>
     /// <param name="request">Message text content.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpPost("{conversationId:guid}/messages")]
+    [HttpPost("{conversationId:int}/messages")]
     [ProducesResponseType(typeof(ChatMessageDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ChatMessageDto>> SendMessage(
-        Guid conversationId,
+        int conversationId,
         [FromBody] SendMessageRequest request,
         CancellationToken cancellationToken)
     {

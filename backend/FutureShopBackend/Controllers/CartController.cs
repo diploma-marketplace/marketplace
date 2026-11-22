@@ -55,14 +55,14 @@ public class CartController(ICartService cartService) : ControllerBase
     /// <param name="productId">Product identifier.</param>
     /// <param name="request">Updated quantity.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpPut("items/{productId:guid}")]
+    [HttpPut("items/{productId:int}")]
     [ProducesResponseType(typeof(CartResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CartResponse>> UpdateItemQuantity(
-        Guid productId,
+        int productId,
         [FromBody] UpdateCartItemQuantityRequest request,
         CancellationToken cancellationToken)
     {
@@ -75,13 +75,13 @@ public class CartController(ICartService cartService) : ControllerBase
     /// </summary>
     /// <param name="productId">Product identifier.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [HttpDelete("items/{productId:guid}")]
+    [HttpDelete("items/{productId:int}")]
     [ProducesResponseType(typeof(CartResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CartResponse>> RemoveItem(
-        Guid productId,
+        int productId,
         CancellationToken cancellationToken)
     {
         var cart = await cartService.RemoveItemAsync(productId, cancellationToken);

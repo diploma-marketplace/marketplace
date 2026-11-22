@@ -9,8 +9,8 @@ using Microsoft.AspNetCore.Identity;
 namespace FutureShopBackend.Application.Services;
 
 /// <summary>
-/// Реєстрація, вхід і профіль сесії.
-/// Чиста бізнес-логіка, яка не знає про HTTP, куки чи контексти запиту.
+/// Handles account registration, authentication, and session profile lookups.
+/// Pure business logic decoupled from HTTP, cookies, and request contexts.
 /// </summary>
 public sealed class AuthService(
     UserManager<ApplicationUser> users,
@@ -32,8 +32,18 @@ public sealed class AuthService(
             Email = request.Email,
             PhoneNumber = request.PhoneNumber,
             FullName = request.FullName,
-            RoleId = request.Role == UserRole.Company ? 2 : 3, // id з seed-даних AppDbContext
+            RoleId = request.Role == UserRole.Company ? 2 : 3, // Role ID from AppDbContext seed data
             SellerType = request.Role == UserRole.Company ? SellerType.Company : null,
+            CompanyName = request.CompanyDetails?.CompanyName,
+            TaxIdentificationCode = request.CompanyDetails?.EdrpouCode,
+            Address = request.CompanyDetails?.LegalAddress,
+            WebsiteUrl = request.CompanyDetails?.WebsiteUrl,
+            VerificationStatus = request.Role == UserRole.Company && request.CompanyDetails is not null
+                ? VerificationStatus.Pending
+                : VerificationStatus.NotSubmitted,
+            VerificationSubmittedAt = request.Role == UserRole.Company && request.CompanyDetails is not null
+                ? DateTime.UtcNow
+                : null,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -57,7 +67,7 @@ public sealed class AuthService(
     {
         var user = await users.FindByEmailAsync(request.Email);
 
-        // Однакова відповідь для "немає користувача" і "поганий пароль" — не розкриваємо, які email існують.
+        // Return an identical error for unknown email and invalid password to prevent user enumeration.
         if (user is null || !await users.CheckPasswordAsync(user, request.Password))
             throw new UnauthorizedException("Invalid email or password.", "INVALID_CREDENTIALS");
 
@@ -100,7 +110,9 @@ public sealed class AuthService(
         AvatarUrl = user.AvatarUrl,
         Role = role,
         AccountStatus = AccountStatus.Active,
-        VerificationStatus = VerificationStatus.NotSubmitted,
+        VerificationStatus = user.VerificationStatus,
+        PreferredLanguage = user.PreferredLanguage,
+        PreferredTheme = user.PreferredTheme,
         ExpiresAt = expiresAt
     };
 }
