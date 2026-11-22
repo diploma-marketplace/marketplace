@@ -1,6 +1,6 @@
 import { Carousel } from '@/shared/ui';
 import { BannerSlide, bannerSlots } from '@/entities/banner';
-import { usePreferences } from '@/app/providers/PreferencesProvider';
+import { usePreferences } from '@/app/providers/usePreferences';
 
 export function BannerSection() {
   const { t } = usePreferences();

@@ -1,5 +1,5 @@
 import type { Product } from '../model/types';
-import { usePreferences } from '@/app/providers/PreferencesProvider';
+import { usePreferences } from '@/app/providers/usePreferences';
 import styles from './ProductCard.module.css';
 
 export function ProductCard({ product }: { product: Product }) {

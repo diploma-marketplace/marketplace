@@ -1,5 +1,5 @@
 import type { Category } from '../model/types';
-import { usePreferences } from '@/app/providers/PreferencesProvider';
+import { usePreferences } from '@/app/providers/usePreferences';
 import styles from './CategoryCard.module.css';
 
 export function CategoryCard({ category }: { category: Category }) {

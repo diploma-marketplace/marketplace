@@ -1,4 +1,4 @@
-import { usePreferences } from '@/app/providers/PreferencesProvider';
+import { usePreferences } from '@/app/providers/usePreferences';
 import styles from './Footer.module.css';
 import { Container } from '@/shared/ui';
 

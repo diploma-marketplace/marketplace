@@ -1,5 +1,5 @@
 import { CategoryCard, mockCategories } from '@/entities/category';
-import { usePreferences } from '@/app/providers/PreferencesProvider';
+import { usePreferences } from '@/app/providers/usePreferences';
 import styles from './sections.module.css';
 
 export function CategorySection() {

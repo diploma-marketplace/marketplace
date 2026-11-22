@@ -1,5 +1,5 @@
 import { ProductCard, mockProducts } from '@/entities/product';
-import { usePreferences } from '@/app/providers/PreferencesProvider';
+import { usePreferences } from '@/app/providers/usePreferences';
 import styles from './sections.module.css';
 
 export function RecommendedSection() {

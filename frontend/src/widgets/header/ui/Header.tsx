@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Container, Button } from '@/shared/ui';
 import { SearchBar } from '@/features/search';
-import { usePreferences } from '@/app/providers/PreferencesProvider';
+import { usePreferences } from '@/app/providers/usePreferences';
 import styles from './Header.module.css';
 
 export function Header() {
