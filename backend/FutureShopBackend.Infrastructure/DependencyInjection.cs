@@ -45,6 +45,12 @@ namespace FutureShopBackend.Infrastructure
             services.AddScoped<IProductService>(sp => sp.GetRequiredService<CatalogService>());
             services.AddScoped<ICategoryService>(sp => sp.GetRequiredService<CatalogService>());
 
+            // Shopping cart (grouped by seller), wishlist, and order checkout services
+            services.AddScoped<CommerceService>();
+            services.AddScoped<ICartService>(sp => sp.GetRequiredService<CommerceService>());
+            services.AddScoped<IWishlistService>(sp => sp.GetRequiredService<CommerceService>());
+            services.AddScoped<IOrderService>(sp => sp.GetRequiredService<CommerceService>());
+
             return services;
         }
     }
