@@ -1,12 +1,16 @@
-import {Carousel} from '@/shared/ui';
-import {BannerSlide, bannerSlots} from '@/entities/banner';
+import { Carousel } from '@/shared/ui';
+import { BannerSlide, bannerSlots } from '@/entities/banner';
+import { usePreferences } from '@/app/providers/PreferencesProvider';
 
 export function BannerSection() {
-    return (
-        <Carousel label="Promotions"
-                  slides={bannerSlots.map((banner) => (
-                      <BannerSlide key={banner.id} banner={banner} />
-                  ))}
-        />
-    )
+  const { t } = usePreferences();
+
+  return (
+    <Carousel
+      label={t('promotions')}
+      slides={bannerSlots.map((banner) => (
+        <BannerSlide key={banner.id} banner={banner} />
+      ))}
+    />
+  );
 }

@@ -1,5 +1,10 @@
 import type { ReactNode } from 'react';
+import { PreferencesProvider } from './PreferencesProvider';
 
 export function AppProviders({ children }: { children: ReactNode }) {
-  return <>{children}</>;
+  return (
+    <PreferencesProvider>
+      {children}
+    </PreferencesProvider>
+  );
 }

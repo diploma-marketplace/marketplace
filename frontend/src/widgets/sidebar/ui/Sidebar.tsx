@@ -1,8 +1,8 @@
+import { usePreferences } from '@/app/providers/PreferencesProvider';
 import styles from './Sidebar.module.css';
 
 export function Sidebar() {
-    return (
-        //Placeholder
-        <aside className={styles.sidebar} aria-label="Category and filters"/>
-    );
+  const { t } = usePreferences();
+
+  return <aside className={styles.sidebar} aria-label={t('categories')} />;
 }

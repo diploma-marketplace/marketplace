@@ -40,24 +40,23 @@
   --color-category-tile: var(--color-button);
 }
 
-/*:root[data-theme='dark'] {
+:root[data-theme='dark'] {
+  color-scheme: dark;
   --color-bg: #121212;
+  --color-surface: #292929;
+  --color-surface-text: #f8f9fa;
   --color-text: #ffffff;
-
-  --color-component-bg: rgba(0, 0, 0, 60%);
+  --color-text-muted: #c5c5c5;
+  --color-border: #555555;
+  --color-wishlist-bg: #444444;
+  --color-component-bg: rgba(0, 0, 0, 0.6);
+  --color-button: #d4af37;
   --color-button-text: #ffffff;
-
+  --color-product-text: #ffffff;
+  --color-product-description: #dddddd;
+  --color-product-rating: #f2d36b;
   --color-product-bg: #2a2d34;
-}*/
-
-/*@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']):not([data-theme='dark']) {
-    --color-bg: #121212;
-    --color-text: #ffffff;
-
-    --color-component-bg: rgba(0, 0, 0, 60%);
-    --color-button-text: #ffffff;
-
-    --color-product-bg: #2a2d34;
-  }
-}*/
+  --color-banner-bg: #242424;
+  --color-products-bg: #1b1b1b;
+  --color-category-tile: var(--color-button);
+}
