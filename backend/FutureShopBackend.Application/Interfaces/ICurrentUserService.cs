@@ -21,6 +21,21 @@ public interface ICurrentUserService
     bool IsAdmin { get; }
 
     /// <summary>
+    /// Indicates whether the current authenticated user has company seller privileges.
+    /// </summary>
+    bool IsCompany { get; }
+
+    /// <summary>
+    /// Indicates whether the current authenticated user has regular user privileges.
+    /// </summary>
+    bool IsUser { get; }
+
+    /// <summary>
+    /// Indicates whether the current authenticated user is a guest.
+    /// </summary>
+    bool IsGuest { get; }
+
+    /// <summary>
     /// Indicates whether the current request is authenticated.
     /// </summary>
     bool IsAuthenticated { get; }

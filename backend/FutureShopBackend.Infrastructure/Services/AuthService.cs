@@ -6,7 +6,7 @@ using FutureShopBackend.Domain.Entities;
 using FutureShopBackend.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 
-namespace FutureShopBackend.Application.Services;
+namespace FutureShopBackend.Infrastructure.Services;
 
 /// <summary>
 /// Handles account registration, authentication, and session profile lookups.
@@ -32,7 +32,12 @@ public sealed class AuthService(
             Email = request.Email,
             PhoneNumber = request.PhoneNumber,
             FullName = request.FullName,
-            RoleId = request.Role == UserRole.Company ? 2 : 3, // Role ID from AppDbContext seed data
+            RoleId = request.Role switch
+            {
+                UserRole.Company => 2,
+                UserRole.Guest => 4,
+                _ => 3
+            },
             SellerType = request.Role == UserRole.Company ? SellerType.Company : null,
             CompanyName = request.CompanyDetails?.CompanyName,
             TaxIdentificationCode = request.CompanyDetails?.EdrpouCode,
@@ -74,7 +79,13 @@ public sealed class AuthService(
         if (await users.IsLockedOutAsync(user))
             throw new ForbiddenException("Account is temporarily blocked.", "ACCOUNT_BLOCKED");
 
-        var role = user.RoleId == 2 ? UserRole.Company : (user.RoleId == 1 ? UserRole.Admin : UserRole.User);
+        var role = user.RoleId switch
+        {
+            1 => UserRole.Admin,
+            2 => UserRole.Company,
+            4 => UserRole.Guest,
+            _ => UserRole.User
+        };
         var expires = DateTimeOffset.UtcNow.Add(request.RememberMe ? RememberMeLifetime : SessionLifetime);
 
         return ToResponse(user, role, expires);
@@ -89,7 +100,13 @@ public sealed class AuthService(
         var user = await users.FindByIdAsync(userId.ToString())
             ?? throw new UnauthorizedException();
 
-        var role = user.RoleId == 2 ? UserRole.Company : (user.RoleId == 1 ? UserRole.Admin : UserRole.User);
+        var role = user.RoleId switch
+        {
+            1 => UserRole.Admin,
+            2 => UserRole.Company,
+            4 => UserRole.Guest,
+            _ => UserRole.User
+        };
         return ToResponse(user, role, DateTimeOffset.UtcNow.Add(SessionLifetime));
     }
 

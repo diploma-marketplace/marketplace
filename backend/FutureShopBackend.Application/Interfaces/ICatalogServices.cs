@@ -9,10 +9,14 @@ namespace FutureShopBackend.Application.Interfaces;
 public interface ICategoryService
 {
     Task<IReadOnlyList<CategoryTreeDto>> GetCategoryTreeAsync(CancellationToken cancellationToken = default);
+    Task<CategoryTreeDto> GetCategoryByIdAsync(int categoryId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<CategoryAttributeDefinitionDto>> GetCategoryAttributesAsync(int categoryId, CancellationToken cancellationToken = default);
     Task<CategoryTreeDto> CreateCategoryAsync(UpsertCategoryRequest request, CancellationToken cancellationToken = default);
     Task<CategoryTreeDto> UpdateCategoryAsync(int categoryId, UpsertCategoryRequest request, CancellationToken cancellationToken = default);
     Task DeleteCategoryAsync(int categoryId, CancellationToken cancellationToken = default);
+    Task<CategoryAttributeDefinitionDto> AddCategoryAttributeAsync(int categoryId, UpsertCategoryAttributeRequest request, CancellationToken cancellationToken = default);
+    Task<CategoryAttributeDefinitionDto> UpdateCategoryAttributeAsync(int categoryId, int attributeId, UpsertCategoryAttributeRequest request, CancellationToken cancellationToken = default);
+    Task DeleteCategoryAttributeAsync(int categoryId, int attributeId, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -43,5 +47,6 @@ public interface IProductService
     Task<ProductDetailsResponse> UpdateProductStatusAsync(int productId, UpdateProductStatusRequest request, CancellationToken cancellationToken = default);
     Task DeleteProductAsync(int productId, CancellationToken cancellationToken = default);
     Task<ProductStatisticsResponse> GetProductStatisticsAsync(int productId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<string>> UploadProductImagesAsync(int? productId, Microsoft.AspNetCore.Http.IFormFileCollection files, CancellationToken cancellationToken = default);
     Task<BulkProductImportResultResponse> ImportProductsAsync(BulkProductImportRequest request, CancellationToken cancellationToken = default);
 }

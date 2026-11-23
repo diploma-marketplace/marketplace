@@ -1,7 +1,8 @@
+using FutureShopBackend.Api.Attributes;
 using FutureShopBackend.Application.DTO.Catalog;
 using FutureShopBackend.Application.DTO.Common;
 using FutureShopBackend.Application.Interfaces;
-using Microsoft.AspNetCore.Authorization;
+using FutureShopBackend.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FutureShopBackend.Api.Controllers;
@@ -141,11 +142,56 @@ public class ProductsController(IProductService productService) : ControllerBase
     }
 
     /// <summary>
+    /// Uploads product photos before or during listing creation.
+    /// Validates file format (.jpg, .jpeg, .png, .webp), size (max 5 MB), and image header signature.
+    /// </summary>
+    /// <param name="files">Collection of image files to upload (1 to 10 images).</param>
+    /// <param name="cancellationToken">Request cancellation token.</param>
+    [AuthorizeRoles(UserRole.User, UserRole.Company, UserRole.Admin)]
+    [HttpPost("images")]
+    [HttpPost("upload-image")]
+    [Consumes("multipart/form-data")]
+    [ProducesResponseType(typeof(IReadOnlyList<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<IReadOnlyList<string>>> UploadImages(
+        [FromForm] IFormFileCollection files,
+        CancellationToken cancellationToken)
+    {
+        var urls = await productService.UploadProductImagesAsync(null, files, cancellationToken);
+        return Ok(urls);
+    }
+
+    /// <summary>
+    /// Uploads and attaches photos directly to an existing product owned by the authenticated seller (or managed by Admin).
+    /// </summary>
+    /// <param name="productId">Product identifier.</param>
+    /// <param name="files">Collection of image files to upload.</param>
+    /// <param name="cancellationToken">Request cancellation token.</param>
+    [AuthorizeRoles(UserRole.User, UserRole.Company, UserRole.Admin)]
+    [HttpPost("{productId:int}/images")]
+    [Consumes("multipart/form-data")]
+    [ProducesResponseType(typeof(IReadOnlyList<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IReadOnlyList<string>>> UploadProductPhotos(
+        int productId,
+        [FromForm] IFormFileCollection files,
+        CancellationToken cancellationToken)
+    {
+        var urls = await productService.UploadProductImagesAsync(productId, files, cancellationToken);
+        return Ok(urls);
+    }
+
+    /// <summary>
     /// Publishes a new product listing (available to User/FOP within active limit, verified Company, and Admin/Marketplace).
     /// </summary>
     /// <param name="request">Product details, price, condition, stock, images, and specifications.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [Authorize(Roles = "User, Company, Admin")]
+    [AuthorizeRoles(UserRole.User, UserRole.Company, UserRole.Admin)]
     [HttpPost]
     [ProducesResponseType(typeof(ProductDetailsResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
@@ -165,7 +211,7 @@ public class ProductsController(IProductService productService) : ControllerBase
     /// <param name="productId">Product identifier.</param>
     /// <param name="request">Updated product details.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [Authorize(Roles = "User, Company, Admin")]
+    [AuthorizeRoles(UserRole.User, UserRole.Company, UserRole.Admin)]
     [HttpPut("{productId:int}")]
     [ProducesResponseType(typeof(ProductDetailsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
@@ -187,7 +233,7 @@ public class ProductsController(IProductService productService) : ControllerBase
     /// <param name="productId">Product identifier.</param>
     /// <param name="request">Target publication status.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [Authorize(Roles = "User, Company, Admin")]
+    [AuthorizeRoles(UserRole.User, UserRole.Company, UserRole.Admin)]
     [HttpPatch("{productId:int}/status")]
     [ProducesResponseType(typeof(ProductDetailsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
@@ -208,7 +254,7 @@ public class ProductsController(IProductService productService) : ControllerBase
     /// </summary>
     /// <param name="productId">Product identifier.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [Authorize(Roles = "User, Company, Admin")]
+    [AuthorizeRoles(UserRole.User, UserRole.Company, UserRole.Admin)]
     [HttpDelete("{productId:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
@@ -225,7 +271,7 @@ public class ProductsController(IProductService productService) : ControllerBase
     /// </summary>
     /// <param name="productId">Product identifier.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [Authorize(Roles = "User, Company, Admin")]
+    [AuthorizeRoles(UserRole.User, UserRole.Company, UserRole.Admin)]
     [HttpGet("{productId:int}/stats")]
     [ProducesResponseType(typeof(ProductStatisticsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status401Unauthorized)]
@@ -244,7 +290,7 @@ public class ProductsController(IProductService productService) : ControllerBase
     /// </summary>
     /// <param name="request">Feed format and source URL/reference.</param>
     /// <param name="cancellationToken">Request cancellation token.</param>
-    [Authorize(Roles = "Company, Admin")]
+    [AuthorizeRoles(UserRole.Company, UserRole.Admin)]
     [HttpPost("import")]
     [ProducesResponseType(typeof(BulkProductImportResultResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]

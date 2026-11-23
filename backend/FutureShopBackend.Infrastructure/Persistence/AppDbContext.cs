@@ -30,13 +30,14 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     {
         base.OnModelCreating(b); // Identity tables (asp_net_*), snake_case naming via UseSnakeCaseNamingConvention()
 
-        // ───────── ROLES (+ seed: admin, company, user) ─────────
+        // ───────── ROLES (+ seed: admin, company, user, guest) ─────────
         b.Entity<ApplicationRole>(e =>
         {
             e.HasData(
                 new ApplicationRole { Id = 1, Name = "admin", NormalizedName = "ADMIN", ConcurrencyStamp = "role-admin-v1" },
                 new ApplicationRole { Id = 2, Name = "company", NormalizedName = "COMPANY", ConcurrencyStamp = "role-company-v1" },
-                new ApplicationRole { Id = 3, Name = "user", NormalizedName = "USER", ConcurrencyStamp = "role-user-v1" });
+                new ApplicationRole { Id = 3, Name = "user", NormalizedName = "USER", ConcurrencyStamp = "role-user-v1" },
+                new ApplicationRole { Id = 4, Name = "guest", NormalizedName = "GUEST", ConcurrencyStamp = "role-guest-v1" });
         });
 
         // ───────── USERS ─────────

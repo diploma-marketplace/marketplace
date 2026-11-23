@@ -16,10 +16,12 @@ namespace FutureShopBackend.Infrastructure.Services;
 /// </summary>
 public sealed class CatalogService(
     AppDbContext db,
-    ICurrentUserService currentUser) : IProductService, ICategoryService
+    ICurrentUserService currentUser,
+    IPhotoUploadService photoUploadService) : IProductService, ICategoryService
 {
-    private const int DefaultUserListingLimit = 20;
-    private const int VerifiedFopListingLimit = 200;
+    public const int DefaultUserListingLimit = 20;
+    public const int VerifiedFopListingLimit = 200;
+    public const int CompanyListingLimit = 10000;
 
     /// <summary>
     /// Searches, filters, and sorts products across the catalog using a single projected SQL query without N+1 roundtrips.
@@ -481,15 +483,20 @@ public sealed class CatalogService(
     {
         var product = await db.Products
             .AsNoTracking()
-            .Where(p => p.Id == productId && !p.IsDeleted)
             .Include(p => p.Category)
             .Include(p => p.Seller)
             .Include(p => p.Images)
             .Include(p => p.AttributeValues)
                 .ThenInclude(av => av.Attribute)
             .AsSplitQuery()
-            .FirstOrDefaultAsync(cancellationToken)
+            .FirstOrDefaultAsync(p => p.Id == productId, cancellationToken)
             ?? throw new NotFoundException($"Product with ID {productId} was not found.");
+
+        var isOwnerOrAdmin = currentUser.IsAuthenticated && (currentUser.IsAdmin || product.SellerId == currentUser.UserId);
+        if (product.IsDeleted && !isOwnerOrAdmin)
+        {
+            throw new NotFoundException($"Product with ID {productId} was not found.");
+        }
 
         return MapToProductDetails(product);
     }
@@ -580,7 +587,59 @@ public sealed class CatalogService(
     }
 
     /// <summary>
+    /// Uploads and validates product photos (size, format, and magic bytes).
+    /// If productId is provided, verifies ownership and attaches uploaded photos to the product.
+    /// </summary>
+    public async Task<IReadOnlyList<string>> UploadProductImagesAsync(
+        int? productId,
+        Microsoft.AspNetCore.Http.IFormFileCollection files,
+        CancellationToken cancellationToken = default)
+    {
+        if (!currentUser.IsAuthenticated || currentUser.UserId is null)
+        {
+            throw new UnauthorizedException();
+        }
+
+        Product? product = null;
+        if (productId.HasValue)
+        {
+            product = await db.Products
+                .Include(p => p.Images)
+                .FirstOrDefaultAsync(p => p.Id == productId.Value && !p.IsDeleted, cancellationToken)
+                ?? throw new NotFoundException($"Product with ID {productId.Value} was not found.");
+
+            currentUser.EnsureOwner(product.SellerId);
+
+            if (product.Images.Count + files.Count > 10)
+            {
+                throw new BadRequestException("A product cannot have more than 10 photos in total.", "MAX_IMAGE_COUNT_EXCEEDED");
+            }
+        }
+
+        var uploadedUrls = await photoUploadService.UploadPhotosAsync(files, cancellationToken);
+
+        if (product is not null)
+        {
+            var nextSortOrder = product.Images.Count > 0 ? product.Images.Max(i => i.SortOrder) + 1 : 0;
+            foreach (var url in uploadedUrls)
+            {
+                product.Images.Add(new ProductImage
+                {
+                    ProductId = product.Id,
+                    FilePath = url,
+                    SortOrder = nextSortOrder++
+                });
+            }
+
+            await db.SaveChangesAsync(cancellationToken);
+        }
+
+        return uploadedUrls;
+    }
+
+    /// <summary>
     /// Creates a new product listing for the authenticated seller (automatically marking Admin listings as first-party Marketplace offers).
+    /// Enforces listing limits: User (20), verified FOP (200), Company (expanded 10,000 / unlimited), Admin (unlimited).
     /// </summary>
     public async Task<ProductDetailsResponse> CreateProductAsync(
         UpsertProductRequest request,
@@ -601,18 +660,52 @@ public sealed class CatalogService(
             throw new BadRequestException($"Category with ID {request.CategoryId} does not exist.", "CATEGORY_NOT_FOUND");
         }
 
-        // Enforce active listing limits for individual and FOP sellers
+        // Validate product photos
+        if (request.ImageUrls is null || request.ImageUrls.Count == 0)
+        {
+            throw new BadRequestException("At least one product photo is required to publish a listing.", "IMAGE_REQUIRED");
+        }
+
+        if (request.ImageUrls.Count > 10)
+        {
+            throw new BadRequestException("A product cannot have more than 10 photos.", "MAX_IMAGE_COUNT_EXCEEDED");
+        }
+
+        foreach (var url in request.ImageUrls)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                throw new BadRequestException("Image URL or path cannot be empty.", "INVALID_IMAGE_URL");
+            }
+        }
+
+        // Enforce active listing limits:
+        // User (role 3): default 20, verified FOP 200
+        // Company (role 2): expanded limit (10,000) / unlimited
+        // Admin (role 1): unlimited
         if (seller.RoleId == 3)
         {
-            var maxListings = seller.SellerType == SellerType.FOP && seller.VerificationStatus == VerificationStatus.Approved
-                ? VerifiedFopListingLimit
-                : DefaultUserListingLimit;
+            var isVerifiedFop = seller.SellerType == SellerType.FOP && seller.VerificationStatus == VerificationStatus.Approved;
+            var maxListings = isVerifiedFop ? VerifiedFopListingLimit : DefaultUserListingLimit;
 
             var activeCount = await db.Products.CountAsync(p => p.SellerId == sellerId && !p.IsDeleted, cancellationToken);
             if (activeCount >= maxListings)
             {
+                var roleDescription = isVerifiedFop ? "verified FOP seller" : "individual user";
                 throw new BadRequestException(
-                    $"Active listing limit ({maxListings}) reached for your account tier.",
+                    $"Active listing limit ({maxListings}) reached for {roleDescription} accounts. " +
+                    "To publish more products, please upgrade your account to Company or archive/delist existing active listings.",
+                    "LISTING_LIMIT_EXCEEDED");
+            }
+        }
+        else if (seller.RoleId == 2)
+        {
+            var maxListings = CompanyListingLimit;
+            var activeCount = await db.Products.CountAsync(p => p.SellerId == sellerId && !p.IsDeleted, cancellationToken);
+            if (activeCount >= maxListings)
+            {
+                throw new BadRequestException(
+                    $"Active listing limit ({maxListings}) reached for company accounts. Please contact marketplace support for enterprise catalog quotas.",
                     "LISTING_LIMIT_EXCEEDED");
             }
         }
@@ -681,6 +774,16 @@ public sealed class CatalogService(
             throw new BadRequestException($"Category with ID {request.CategoryId} does not exist.", "CATEGORY_NOT_FOUND");
         }
 
+        if (request.ImageUrls is null || request.ImageUrls.Count == 0)
+        {
+            throw new BadRequestException("At least one product photo is required.", "IMAGE_REQUIRED");
+        }
+
+        if (request.ImageUrls.Count > 10)
+        {
+            throw new BadRequestException("A product cannot have more than 10 photos.", "MAX_IMAGE_COUNT_EXCEEDED");
+        }
+
         product.Title = request.Title.Trim();
         product.Description = request.Description.Trim();
         product.CategoryId = request.CategoryId;
@@ -722,6 +825,7 @@ public sealed class CatalogService(
 
     /// <summary>
     /// Updates the visibility/publication status of a product listing.
+    /// Delists/archives when Archived or Hidden; checks active quota when reactivating.
     /// </summary>
     public async Task<ProductDetailsResponse> UpdateProductStatusAsync(
         int productId,
@@ -729,22 +833,57 @@ public sealed class CatalogService(
         CancellationToken cancellationToken = default)
     {
         var product = await db.Products
-            .FirstOrDefaultAsync(p => p.Id == productId && !p.IsDeleted, cancellationToken)
+            .FirstOrDefaultAsync(p => p.Id == productId, cancellationToken)
             ?? throw new NotFoundException($"Product with ID {productId} was not found.");
 
         currentUser.EnsureOwner(product.SellerId);
 
-        if (request.Status == ProductStatus.Archived)
+        if (request.Status == ProductStatus.Archived || request.Status == ProductStatus.Hidden)
         {
-            product.IsDeleted = true;
-            await db.SaveChangesAsync(cancellationToken);
+            product.IsDeleted = true; // Delist from catalog
+        }
+        else if (request.Status == ProductStatus.Active)
+        {
+            if (product.IsDeleted)
+            {
+                var seller = await db.Users.FirstOrDefaultAsync(u => u.Id == product.SellerId, cancellationToken)
+                    ?? throw new UnauthorizedException();
+
+                if (seller.RoleId == 3)
+                {
+                    var isVerifiedFop = seller.SellerType == SellerType.FOP && seller.VerificationStatus == VerificationStatus.Approved;
+                    var maxListings = isVerifiedFop ? VerifiedFopListingLimit : DefaultUserListingLimit;
+                    var activeCount = await db.Products.CountAsync(p => p.SellerId == product.SellerId && !p.IsDeleted, cancellationToken);
+                    if (activeCount >= maxListings)
+                    {
+                        throw new BadRequestException(
+                            $"Cannot activate listing. Active listing limit ({maxListings}) reached for your account tier. " +
+                            "Archive or delist other listings before activating this product.",
+                            "LISTING_LIMIT_EXCEEDED");
+                    }
+                }
+                else if (seller.RoleId == 2)
+                {
+                    var maxListings = CompanyListingLimit;
+                    var activeCount = await db.Products.CountAsync(p => p.SellerId == product.SellerId && !p.IsDeleted, cancellationToken);
+                    if (activeCount >= maxListings)
+                    {
+                        throw new BadRequestException(
+                            $"Cannot activate listing. Active listing limit ({maxListings}) reached for company accounts.",
+                            "LISTING_LIMIT_EXCEEDED");
+                    }
+                }
+
+                product.IsDeleted = false;
+            }
         }
 
+        await db.SaveChangesAsync(cancellationToken);
         return await GetProductByIdAsync(productId, cancellationToken);
     }
 
     /// <summary>
-    /// Soft-deletes a product listing owned by the authenticated seller or by Admin.
+    /// Delists / soft-deletes a product listing owned by the authenticated seller or by Admin.
     /// </summary>
     public async Task DeleteProductAsync(int productId, CancellationToken cancellationToken = default)
     {
@@ -915,6 +1054,25 @@ public sealed class CatalogService(
     }
 
     /// <summary>
+    /// Retrieves a single category by its identifier.
+    /// </summary>
+    public async Task<CategoryTreeDto> GetCategoryByIdAsync(int categoryId, CancellationToken cancellationToken = default)
+    {
+        var category = await db.Categories
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == categoryId, cancellationToken)
+            ?? throw new NotFoundException($"Category with ID {categoryId} was not found.");
+
+        return new CategoryTreeDto
+        {
+            Id = category.Id,
+            ParentId = category.ParentId,
+            Name = category.Name,
+            Slug = category.Slug
+        };
+    }
+
+    /// <summary>
     /// Updates an existing category and its dynamic attributes (Admin only).
     /// </summary>
     public async Task<CategoryTreeDto> UpdateCategoryAsync(
@@ -922,6 +1080,11 @@ public sealed class CatalogService(
         UpsertCategoryRequest request,
         CancellationToken cancellationToken = default)
     {
+        if (!currentUser.IsAdmin)
+        {
+            throw new ForbiddenException("Platform administrator privileges are required.", "ADMIN_ROLE_REQUIRED");
+        }
+
         var category = await db.Categories
             .Include(c => c.Attributes)
             .FirstOrDefaultAsync(c => c.Id == categoryId, cancellationToken)
@@ -936,6 +1099,22 @@ public sealed class CatalogService(
         category.ParentId = request.ParentId;
         category.Name = request.Name.Trim();
         category.Slug = slug;
+
+        if (request.Attributes is { Count: > 0 })
+        {
+            foreach (var attr in request.Attributes)
+            {
+                var trimmed = attr.Name.Trim();
+                if (!category.Attributes.Any(a => string.Equals(a.Name, trimmed, StringComparison.OrdinalIgnoreCase)))
+                {
+                    category.Attributes.Add(new ProductAttribute
+                    {
+                        Name = trimmed,
+                        CategoryId = category.Id
+                    });
+                }
+            }
+        }
 
         await db.SaveChangesAsync(cancellationToken);
 
@@ -953,6 +1132,11 @@ public sealed class CatalogService(
     /// </summary>
     public async Task DeleteCategoryAsync(int categoryId, CancellationToken cancellationToken = default)
     {
+        if (!currentUser.IsAdmin)
+        {
+            throw new ForbiddenException("Platform administrator privileges are required.", "ADMIN_ROLE_REQUIRED");
+        }
+
         var category = await db.Categories
             .FirstOrDefaultAsync(c => c.Id == categoryId, cancellationToken)
             ?? throw new NotFoundException($"Category with ID {categoryId} was not found.");
@@ -964,6 +1148,128 @@ public sealed class CatalogService(
         }
 
         db.Categories.Remove(category);
+        await db.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Adds a new dynamic specification attribute to a category (Admin only).
+    /// </summary>
+    public async Task<CategoryAttributeDefinitionDto> AddCategoryAttributeAsync(
+        int categoryId,
+        UpsertCategoryAttributeRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        if (!currentUser.IsAdmin)
+        {
+            throw new ForbiddenException("Platform administrator privileges are required.", "ADMIN_ROLE_REQUIRED");
+        }
+
+        var categoryExists = await db.Categories.AnyAsync(c => c.Id == categoryId, cancellationToken);
+        if (!categoryExists)
+        {
+            throw new NotFoundException($"Category with ID {categoryId} was not found.");
+        }
+
+        var trimmedName = request.Name.Trim();
+        var alreadyExists = await db.Attributes.AnyAsync(
+            a => a.CategoryId == categoryId && a.Name.ToLower() == trimmedName.ToLower(),
+            cancellationToken);
+
+        if (alreadyExists)
+        {
+            throw new ConflictException(
+                $"Attribute '{trimmedName}' already exists in category ID {categoryId}.",
+                "ATTRIBUTE_ALREADY_EXISTS");
+        }
+
+        var attribute = new ProductAttribute
+        {
+            CategoryId = categoryId,
+            Name = trimmedName
+        };
+
+        db.Attributes.Add(attribute);
+        await db.SaveChangesAsync(cancellationToken);
+
+        return new CategoryAttributeDefinitionDto
+        {
+            Id = attribute.Id,
+            CategoryId = attribute.CategoryId,
+            Name = attribute.Name,
+            Unit = request.Unit,
+            DataType = request.DataType,
+            IsFilterable = request.IsFilterable,
+            IsComparable = request.IsComparable,
+            IsRequired = request.IsRequired,
+            AllowedValues = request.AllowedValues
+        };
+    }
+
+    /// <summary>
+    /// Updates an existing specification attribute in a category (Admin only).
+    /// </summary>
+    public async Task<CategoryAttributeDefinitionDto> UpdateCategoryAttributeAsync(
+        int categoryId,
+        int attributeId,
+        UpsertCategoryAttributeRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        if (!currentUser.IsAdmin)
+        {
+            throw new ForbiddenException("Platform administrator privileges are required.", "ADMIN_ROLE_REQUIRED");
+        }
+
+        var attribute = await db.Attributes
+            .FirstOrDefaultAsync(a => a.Id == attributeId && a.CategoryId == categoryId, cancellationToken)
+            ?? throw new NotFoundException($"Attribute with ID {attributeId} was not found in category {categoryId}.");
+
+        var trimmedName = request.Name.Trim();
+        var duplicateExists = await db.Attributes.AnyAsync(
+            a => a.CategoryId == categoryId && a.Id != attributeId && a.Name.ToLower() == trimmedName.ToLower(),
+            cancellationToken);
+
+        if (duplicateExists)
+        {
+            throw new ConflictException(
+                $"Another attribute with name '{trimmedName}' already exists in category ID {categoryId}.",
+                "ATTRIBUTE_ALREADY_EXISTS");
+        }
+
+        attribute.Name = trimmedName;
+        await db.SaveChangesAsync(cancellationToken);
+
+        return new CategoryAttributeDefinitionDto
+        {
+            Id = attribute.Id,
+            CategoryId = attribute.CategoryId,
+            Name = attribute.Name,
+            Unit = request.Unit,
+            DataType = request.DataType,
+            IsFilterable = request.IsFilterable,
+            IsComparable = request.IsComparable,
+            IsRequired = request.IsRequired,
+            AllowedValues = request.AllowedValues
+        };
+    }
+
+    /// <summary>
+    /// Deletes a specification attribute from a category (Admin only).
+    /// </summary>
+    public async Task DeleteCategoryAttributeAsync(
+        int categoryId,
+        int attributeId,
+        CancellationToken cancellationToken = default)
+    {
+        if (!currentUser.IsAdmin)
+        {
+            throw new ForbiddenException("Platform administrator privileges are required.", "ADMIN_ROLE_REQUIRED");
+        }
+
+        var attribute = await db.Attributes
+            .FirstOrDefaultAsync(a => a.Id == attributeId && a.CategoryId == categoryId, cancellationToken)
+            ?? throw new NotFoundException($"Attribute with ID {attributeId} was not found in category {categoryId}.");
+
+        db.Attributes.Remove(attribute);
         await db.SaveChangesAsync(cancellationToken);
     }
 

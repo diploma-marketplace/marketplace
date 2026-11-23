@@ -29,6 +29,15 @@ public sealed class CurrentUserService(IHttpContextAccessor httpContextAccessor)
     public bool IsAdmin => string.Equals(Role, "Admin", StringComparison.OrdinalIgnoreCase);
 
     /// <inheritdoc />
+    public bool IsCompany => string.Equals(Role, "Company", StringComparison.OrdinalIgnoreCase);
+
+    /// <inheritdoc />
+    public bool IsUser => string.Equals(Role, "User", StringComparison.OrdinalIgnoreCase);
+
+    /// <inheritdoc />
+    public bool IsGuest => string.Equals(Role, "Guest", StringComparison.OrdinalIgnoreCase);
+
+    /// <inheritdoc />
     public bool IsAuthenticated => User?.Identity?.IsAuthenticated == true;
 
     public void EnsureOwner(int ownerId)

@@ -1,4 +1,3 @@
-using FutureShopBackend.Application.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FutureShopBackend.Application
@@ -7,8 +6,6 @@ namespace FutureShopBackend.Application
     {
         public static IServiceCollection AddApplicationDI(this IServiceCollection services)
         {
-            services.AddScoped<IAuthService, Services.AuthService>();
-
             return services;
         }
     }
