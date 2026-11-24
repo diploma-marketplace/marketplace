@@ -1,0 +1,61 @@
+
+{
+  "preferences": {
+    "title": "Налаштування",
+    "language": "Мова",
+    "theme": "Тема",
+    "ukrainian": "Українська",
+    "english": "Англійська",
+    "light": "Світла",
+    "dark": "Темна",
+    "system": "Системна"
+  },
+  "header": {
+    "login": "Увійти",
+    "signup": "Реєстрація",
+    "cart": "Кошик",
+    "logout": "Вийти",
+    "profile": "Профіль",
+    "home": "Головна сторінка"
+  },
+  
+  "catalog": {
+  "seller": "Продавець",
+  "fromMarketplace": "Від маркетплейсу",
+  "fromCompanies": "Від компаній",
+  "fromPrivateSellers": "Від приватних продавців",
+  "allCategories": "Усі категорії",
+  "electronics": "Електроніка",
+  "appliances": "Побутова техніка",
+  "fashion": "Мода",
+  "homeGarden": "Дім і сад",
+  "sports": "Спорт",
+  "kids": "Дитячі товари",
+  "auto": "Авто",
+  "category": "Категорія",
+  "price": "Ціна, грн",
+  "from": "Від",
+  "to": "До",
+  "brand": "Бренд",
+  "condition": "Стан",
+  "used": "Вживаний",
+  "new": "Новий",
+  "resetFilters": "Скинути фільтри",
+  "prev": "Назад",
+  "next": "Далі",
+  "productsCount": "{{count}} товарів",
+  "sort": "Сортування",
+  "popular": "Популярні",
+  "priceLowToHigh": "Від дешевих до дорогих",
+  "priceHighToLow": "Від дорогих до дешевих",
+  "newest": "Найновіші",
+  "grid": "Сітка",
+  "list": "Список",
+  "loading": "Завантаження…",
+  "layout": "Вигляд",
+  "loadError": "Не вдалося завантажити товари.",
+  "tryAgain": "Спробувати ще раз",
+  "nothingFound": "Нічого не знайдено. Спробуйте змінити фільтри."
+}
+
+}

@@ -1,0 +1,61 @@
+
+{
+  "preferences": {
+    "title": "Preferences",
+    "language": "Language",
+    "theme": "Theme",
+    "ukrainian": "Ukrainian",
+    "english": "English",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "header": {
+    "login": "Log In",
+    "signup": "Sign Up",
+    "cart": "Cart",
+    "logout": "Log Out",
+    "profile": "Profile",
+    "home": "Home page"
+  },
+
+  "catalog": {
+  "seller": "Seller",
+  "fromMarketplace": "From marketplace",
+  "fromCompanies": "From companies",
+  "fromPrivateSellers": "From private sellers",
+  "allCategories": "All categories",
+  "electronics": "Electronics",
+  "appliances": "Appliances",
+  "fashion": "Fashion",
+  "homeGarden": "Home & Garden",
+  "sports": "Sports",
+  "kids": "Kids",
+  "auto": "Auto",
+  "category": "Category",
+  "price": "Price, UAH",
+  "from": "From",
+  "to": "To",
+  "brand": "Brand",
+  "condition": "Condition",
+  "used": "Used",
+  "new": "New",
+  "resetFilters": "Reset filters",
+  "prev": "Prev",
+  "next": "Next",
+  "productsCount": "{{count}} products",
+  "sort": "Sort",
+  "popular": "Popular",
+  "priceLowToHigh": "Price: low to high",
+  "priceHighToLow": "Price: high to low",
+  "newest": "Newest",
+  "grid": "Grid",
+  "list": "List",
+  "loading": "Loading…",
+  "layout": "Layout",
+  "loadError": "Could not load products.",
+  "tryAgain": "Try again",
+  "nothingFound": "Nothing found. Try changing the filters."
+}
+
+}
