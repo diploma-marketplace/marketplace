@@ -1,0 +1,7 @@
+# Що не потрапляє в образ сайту: залежності ставить npm ci, збірка робиться заново, секрети ніколи
+node_modules
+dist
+.env
+*.local
+Dockerfile
+.dockerignore

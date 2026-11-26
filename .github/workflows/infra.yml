@@ -34,7 +34,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
-      - name: Конфіг Nginx і відповіді сайту
+      - name: Образ сайту, конфіг Nginx і відповіді сайту
         run: bash infra/ci/test-nginx.sh
 
   db-roles:

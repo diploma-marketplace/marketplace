@@ -19,7 +19,7 @@ updates:
       minor-and-patch:
         update-types: [minor, patch]
 
-  # Образи в docker-compose.yml (nginx, certbot) і dev/docker-compose.yml (postgres, redis)
+  # Образи в docker-compose.yml (certbot) і dev/docker-compose.yml (postgres, redis)
   - package-ecosystem: docker-compose
     directories: [/, /dev]
     schedule:
@@ -34,9 +34,6 @@ updates:
       # PostgreSQL як в Azure (17): лише мінорні; на 18 переходимо разом з Azure
       - dependency-name: postgres
         update-types: [version-update:semver-major]
-      # Nginx лише stable-гілка: patch (1.30.6 → 1.30.7); на наступну парну (1.32) — вручну
-      - dependency-name: nginx
-        update-types: [version-update:semver-major, version-update:semver-minor]
 
   # Образи .NET у Dockerfile backend
   - package-ecosystem: docker
@@ -53,6 +50,26 @@ updates:
       # Лишаємось на .NET 10 (LTS): перехід на 11 — рішення програмістів, не робота
       - dependency-name: "*dotnet/*"
         update-types: [version-update:semver-major]
+
+  # Образи у Dockerfile frontend: Node (збірка сайту) і Nginx (сайт на сервері)
+  - package-ecosystem: docker
+    directory: /frontend
+    schedule:
+      interval: monthly
+      time: "06:00"
+      timezone: Europe/Kyiv
+    open-pull-requests-limit: 3
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      # Node — та сама major, що у frontend/.nvmrc; нову major обирають програмісти.
+      # Якщо в .nvmrc точна версія, у PR Dependabot її треба оновити теж (інакше перевірка nginx не пройде)
+      - dependency-name: node
+        update-types: [version-update:semver-major]
+      # Nginx лише stable-гілка: patch (1.30.6 → 1.30.7); на наступну парну (1.32) — вручну
+      - dependency-name: nginx
+        update-types: [version-update:semver-major, version-update:semver-minor]
 
   # Пакети NuGet у backend: тут .slnx і проєкт Api, що посилається на решту проєктів,
   # тож усі чотири проєкти оновлюються разом, одним PR. Лише patch
