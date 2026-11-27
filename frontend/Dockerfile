@@ -10,5 +10,5 @@ COPY . .
 RUN npm run build
 
 # 2. Готовий образ: Nginx і файли з dist/
-FROM nginx:1.30.6-alpine
+FROM nginx:1.30.7-alpine
 COPY --from=build /app/dist /usr/share/nginx/html
