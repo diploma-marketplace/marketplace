@@ -78,7 +78,8 @@ public class AuthController(IAuthService authService) : ControllerBase
             new(ClaimTypes.NameIdentifier, session.UserId.ToString()),
             new(ClaimTypes.Email, session.Email),
             new(ClaimTypes.Name, session.FullName),
-            new(ClaimTypes.Role, session.Role.ToString())
+            new(ClaimTypes.Role, session.Role.ToString()),
+            new(ClaimTypes.Role, session.Role.ToString().ToLowerInvariant())
         };
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 

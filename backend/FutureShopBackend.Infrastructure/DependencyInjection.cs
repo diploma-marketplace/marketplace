@@ -34,13 +34,17 @@ namespace FutureShopBackend.Infrastructure
             // Current user context accessor for RBAC and resource ownership verification
             services.AddHttpContextAccessor();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, ProductOwnerAuthorizationHandler>();
+            services.AddScoped<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, DirectOwnerAuthorizationHandler>();
 
             // User and public seller profile services
+            services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<UserService>();
             services.AddScoped<IUserService>(sp => sp.GetRequiredService<UserService>());
             services.AddScoped<ISellerService>(sp => sp.GetRequiredService<UserService>());
 
             // Catalog, search, filtering, and category services
+            services.AddScoped<IPhotoUploadService, PhotoUploadService>();
             services.AddScoped<CatalogService>();
             services.AddScoped<IProductService>(sp => sp.GetRequiredService<CatalogService>());
             services.AddScoped<ICategoryService>(sp => sp.GetRequiredService<CatalogService>());

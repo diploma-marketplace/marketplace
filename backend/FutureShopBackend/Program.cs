@@ -1,14 +1,27 @@
 using FutureShopBackend.Api;
 using FutureShopBackend.Api.Middleware;
+using FutureShopBackend.Application.DTO.Common;
+using FutureShopBackend.Domain.Constants;
 using FutureShopBackend.Infrastructure.Auth;
 using FutureShopBackend.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Diagnostics;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddOpenApi();
 builder.Services.AddAppDI(builder.Configuration);
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdmin", policy => policy.RequireRole(AppRoles.Admin, "Admin"));
+    options.AddPolicy("RequireCompany", policy => policy.RequireRole(AppRoles.Company, "Company"));
+    options.AddPolicy("RequireUser", policy => policy.RequireRole(AppRoles.User, "User"));
+    options.AddPolicy("RequireSeller", policy => policy.RequireRole(AppRoles.Admin, "Admin", AppRoles.Company, "Company", AppRoles.User, "User"));
+});
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie();
 // Сесія зберігається в Redis (RedisTicketStore); у cookie лише ключ сесії
@@ -25,9 +38,35 @@ builder.Services.AddOptions<CookieAuthenticationOptions>(CookieAuthenticationDef
         options.Cookie.SameSite = SameSiteMode.Strict;
         options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
         options.SlidingExpiration = true;
-        // замість редіректу 401/403
-        options.Events.OnRedirectToLogin = ctx => { ctx.Response.StatusCode = StatusCodes.Status401Unauthorized; return Task.CompletedTask; };
-        options.Events.OnRedirectToAccessDenied = ctx => { ctx.Response.StatusCode = StatusCodes.Status403Forbidden; return Task.CompletedTask; };
+        // замість редіректу 401/403 повертаємо уніфікований JSON ApiErrorResponse
+        options.Events.OnRedirectToLogin = async ctx =>
+        {
+            ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            ctx.Response.ContentType = "application/json";
+            var error = new ApiErrorResponse
+            {
+                Status = StatusCodes.Status401Unauthorized,
+                Code = "UNAUTHORIZED",
+                Message = "Authentication is required to access this resource.",
+                TraceId = Activity.Current?.Id ?? ctx.HttpContext.TraceIdentifier,
+                Timestamp = DateTimeOffset.UtcNow
+            };
+            await ctx.Response.WriteAsync(JsonSerializer.Serialize(error, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+        };
+        options.Events.OnRedirectToAccessDenied = async ctx =>
+        {
+            ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+            ctx.Response.ContentType = "application/json";
+            var error = new ApiErrorResponse
+            {
+                Status = StatusCodes.Status403Forbidden,
+                Code = "FORBIDDEN",
+                Message = "You do not have permission to access this resource.",
+                TraceId = Activity.Current?.Id ?? ctx.HttpContext.TraceIdentifier,
+                Timestamp = DateTimeOffset.UtcNow
+            };
+            await ctx.Response.WriteAsync(JsonSerializer.Serialize(error, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+        };
     });
 
 var app = builder.Build();
@@ -50,6 +89,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
