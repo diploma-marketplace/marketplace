@@ -21,8 +21,8 @@ sudo docker compose run --rm -p 80:80 certbot certonly --standalone \
   -d diploma-marketplace.denmarkeast.cloudapp.azure.com \
   --register-unsafely-without-email --agree-tos
 
-# 4. Запуск сайту
-sudo docker compose up -d
+# 4. Запуск сайту (перший раз збирає образ сайту з frontend/Dockerfile, кілька хвилин)
+sudo docker compose up -d --build
 
 # 5. Автопродовження сертифіката (таймер systemd)
 sudo cp infra/systemd/cert-renew.service infra/systemd/cert-renew.timer /etc/systemd/system/
@@ -50,7 +50,7 @@ sudo /opt/marketplace/infra/scripts/renew-cert.sh                    # ручн�
 На кожен PR у `main` GitHub Actions ([.github/workflows/infra.yml](../.github/workflows/infra.yml)) перевіряє:
 
 - синтаксис Docker Compose (сервер і локальна база);
-- Nginx: `nginx -t` без попереджень на тому ж образі, редірект на HTTPS, шлях Let's Encrypt, HTTPS, маршрути React, HTTP/2, заголовки безпеки;
+- образ сайту з `frontend/Dockerfile`: Node той самий, що в `frontend/.nvmrc`, збірка, далі на ньому Nginx: `nginx -t` без попереджень, редірект на HTTPS, шлях Let's Encrypt, HTTPS віддає зібрану сторінку і її JS, стиснення gzip, кеш файлів збірки на рік і `no-cache` для `index.html`, `/api/` без backend → 503, маршрути React, HTTP/2, заголовки безпеки;
 - `infra/db/roles.sql` на PostgreSQL, налаштованому як Azure: права `marketplace_owner` і `marketplace_app`.
 
 Ті самі перевірки локально, з кореня репозиторію (потрібен Docker):
@@ -86,10 +86,24 @@ bash infra/ci/test-backend.sh
 ```bash
 sudo git pull --ff-only
 sudo docker compose pull
-sudo docker compose up -d
+sudo docker compose up -d --build
 ```
 
-Certbot окремо оновлювати не треба: таймер запускає його через `docker compose run`, і нова версія підтягнеться сама.
+`pull` оновлює готові образи (certbot), `--build` перебирає образ сайту, якщо змінились Node або Nginx у `frontend/Dockerfile`. Certbot окремо оновлювати не треба: таймер запускає його через `docker compose run`, і нова версія підтягнеться сама.
+
+## Сайт (frontend)
+
+Nginx працює на своєму образі: [frontend/Dockerfile](../frontend/Dockerfile) спершу збирає frontend на Node, а в готовий образ кладе лише Nginx і зібрані файли. Конфіг Nginx в образ не зашитий, він підключається з `infra/nginx/conf.d`.
+
+Поки немає автоматичної викладки, після злиття змін у frontend образ збираємо на сервері (`/opt/marketplace`):
+
+```bash
+sudo git pull --ff-only
+sudo docker compose up -d --build
+sudo docker image prune -f        # прибрати старі версії образу
+```
+
+Сайт перезапускається за кілька секунд. Зміни лише в конфігу Nginx збирати не треба: `sudo docker compose exec nginx nginx -s reload`.
 
 ## База даних
 

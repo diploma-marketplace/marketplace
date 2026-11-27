@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Перевірка конфігу Nginx: той самий образ, що на сервері, тимчасовий самопідписаний сертифікат,
-# nginx -t без попереджень і справжні відповіді сайту (редірект, Let's Encrypt, HTTPS, заголовки).
+# Перевірка образу сайту і конфігу Nginx: образ збирається з frontend/Dockerfile, як на сервері (Node як у .nvmrc),
+# тимчасовий самопідписаний сертифікат, nginx -t без попереджень і справжні відповіді сайту
+# (редірект, Let's Encrypt, HTTPS, зібрана сторінка і її JS, заголовки).
 # Запуск з кореня репозиторію (потрібен Docker): bash infra/ci/test-nginx.sh
 set -euo pipefail
 cd "$(dirname "$0")/../.."
-source infra/ci/common.sh
 
 DOMAIN=diploma-marketplace.denmarkeast.cloudapp.azure.com
-IMAGE=$(image_from docker-compose.yml nginx)   # версія з docker-compose.yml
+IMAGE=marketplace-web:ci
 NAME=ci-nginx-$$
 HTTP=18080
 HTTPS=18443
@@ -20,7 +20,23 @@ trap cleanup EXIT
 ok()   { echo "  ✓ $1"; }
 fail() { echo "  ✗ $1"; FAILED=1; }
 
-echo "Образ: $IMAGE"
+echo "1. Образ сайту (frontend/Dockerfile)"
+# Node у Dockerfile має збігатися з .nvmrc: інакше на сервері збирається не тим Node, що в програмістів і в CI
+NVMRC=$(tr -d '[:space:]' < frontend/.nvmrc)
+NVMRC=${NVMRC#v}
+NODE=$(sed -n 's/^FROM node:\([^ ]*\).*/\1/p' frontend/Dockerfile)
+NODE=${NODE%%-*}                               # 26.13.1-alpine → 26.13.1
+if [[ -n $NODE && ( $NODE == "$NVMRC" || $NODE == "$NVMRC".* ) ]]; then
+    ok "Node $NODE відповідає frontend/.nvmrc ($NVMRC)"
+else
+    fail "Node у frontend/Dockerfile: '${NODE}', у frontend/.nvmrc: '$NVMRC' — має бути однаково"
+fi
+if OUT=$(docker build -q -t "$IMAGE" frontend 2>&1); then
+    ok "зібрано"
+else
+    echo "$OUT" | tail -40; fail "образ сайту не зібрався"
+    echo "РЕЗУЛЬТАТ: є помилки"; exit 1
+fi
 
 # Тимчасовий сертифікат там, де nginx чекає справжній від Let's Encrypt
 mkdir -p "$TMP/letsencrypt/live/$DOMAIN"
@@ -31,11 +47,10 @@ chmod -R a+rX "$TMP/letsencrypt"
 
 VOLUMES=(
     -v "$PWD/infra/nginx/conf.d:/etc/nginx/conf.d:ro"
-    -v "$PWD/infra/nginx/html:/usr/share/nginx/html:ro"
     -v "$TMP/letsencrypt:/etc/letsencrypt:ro"
 )
 
-echo "1. nginx -t"
+echo "2. nginx -t"
 if OUT=$(docker run --rm "${VOLUMES[@]}" "$IMAGE" nginx -t 2>&1); then
     if grep -q '\[warn\]' <<<"$OUT"; then
         echo "$OUT"; fail "nginx -t пройшов, але з попередженнями"
@@ -47,7 +62,7 @@ else
     exit 1
 fi
 
-echo "2. Відповіді сайту"
+echo "3. Відповіді сайту"
 docker run -d --name "$NAME" -p "127.0.0.1:$HTTP:80" -p "127.0.0.1:$HTTPS:443" "${VOLUMES[@]}" "$IMAGE" >/dev/null
 for _ in $(seq 1 20); do
     curl -s -o /dev/null "http://127.0.0.1:$HTTP/" && break
@@ -65,9 +80,38 @@ LOC=$(curl -s -o /dev/null -w '%{redirect_url}' "${RES[@]}" "http://$DOMAIN:$HTT
 CODE=$(curl -s -o /dev/null -w '%{http_code}' "${RES[@]}" "http://$DOMAIN:$HTTP/.well-known/acme-challenge/ci-test" || true)
 [[ $CODE == 404 ]] && ok "шлях Let's Encrypt без редіректу (404)" || fail "шлях Let's Encrypt: код $CODE, очікувався 404"
 
-# HTTPS віддає сторінку
+# HTTPS віддає сторінку зі збірки frontend, а не заглушку
 CODE=$(curl -sk -o /dev/null -w '%{http_code}' "${RES[@]}" "https://$DOMAIN:$HTTPS/" || true)
-[[ $CODE == 200 ]] && ok "HTTPS віддає сторінку (200)" || fail "HTTPS: код $CODE"
+PAGE=$(curl -sk "${RES[@]}" "https://$DOMAIN:$HTTPS/" || true)
+[[ $CODE == 200 && $PAGE == *'id="root"'* ]] && ok "HTTPS віддає зібрану сторінку (200)" || fail "HTTPS: код $CODE, немає зібраної сторінки"
+
+# JS зі збірки: 200 і тип javascript (з іншим типом браузер скрипт не запустить, сторінка буде порожня)
+JS=$(grep -o '/assets/[^"]*\.js' <<<"$PAGE" | head -1 || true)
+if [[ -n $JS ]]; then
+    CODE=$(curl -sk -o /dev/null -w '%{http_code} %{content_type}' "${RES[@]}" "https://$DOMAIN:$HTTPS$JS" || true)
+    [[ $CODE == 200*javascript* ]] && ok "JS зібраного сайту (200, javascript)" || fail "JS $JS: $CODE"
+else
+    fail "у сторінці немає посилання на /assets/*.js"
+fi
+
+# Стиснення і кеш JS; файлу, якого немає в збірці, — 404, а не index.html
+if [[ -n $JS ]]; then
+    ENC=$(curl -sk -o /dev/null -D - -H 'Accept-Encoding: gzip' "${RES[@]}" "https://$DOMAIN:$HTTPS$JS" | tr -d '\r' || true)
+    grep -qi '^content-encoding: gzip' <<<"$ENC" && ok "JS стискається (gzip)" || fail "JS без gzip"
+    grep -qi '^cache-control: max-age=31536000' <<<"$ENC" && ok "JS кешується на рік" || fail "JS без кешу на рік"
+    grep -qi '^content-security-policy:' <<<"$ENC" && ok "заголовки безпеки і на файлах збірки" || fail "на файлах збірки немає заголовків безпеки"
+fi
+CODE=$(curl -sk -o /dev/null -w '%{http_code}' "${RES[@]}" "https://$DOMAIN:$HTTPS/assets/ci-test.js" || true)
+[[ $CODE == 404 ]] && ok "неіснуючий файл збірки → 404" || fail "неіснуючий файл збірки: код $CODE, очікувався 404"
+# index.html не кешується: після викладки браузер одразу бере нову версію (і на сторінках React, вони теж index.html)
+for P in / /catalog/ci-test; do
+    CC=$(curl -skI "${RES[@]}" "https://$DOMAIN:$HTTPS$P" | tr -d '\r' | grep -i '^cache-control:' || true)
+    [[ ${CC,,} == *no-cache* ]] && ok "$P не кешується (no-cache)" || fail "$P: ${CC:-немає Cache-Control}"
+done
+
+# /api/ поки backend немає: 503, а не index.html
+CODE=$(curl -sk -o /dev/null -w '%{http_code}' "${RES[@]}" "https://$DOMAIN:$HTTPS/api/auth/me" || true)
+[[ $CODE == 503 ]] && ok "/api/ без backend → 503" || fail "/api/: код $CODE, очікувався 503"
 
 # Будь-яка адреса React → index.html (try_files)
 CODE=$(curl -sk -o /dev/null -w '%{http_code}' "${RES[@]}" "https://$DOMAIN:$HTTPS/catalog/ci-test" || true)

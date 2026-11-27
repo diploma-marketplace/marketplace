@@ -5,7 +5,7 @@
 ## Що потрібно
 
 - **Windows / macOS:** [Docker Desktop](https://www.docker.com/products/docker-desktop/). На Windows — з WSL 2 (Docker Desktop пропонує це при встановленні).
-- **Linux:** Docker Engine і плагін Compose.
+- **Linux:** Docker Engine і плагін Compose. Один раз додати себе в групу `docker` і перезайти в систему: `sudo usermod -aG docker $USER`. Без цього буде `permission denied ... docker.sock`.
 
 Перевірка: `docker compose version` показує версію.
 
