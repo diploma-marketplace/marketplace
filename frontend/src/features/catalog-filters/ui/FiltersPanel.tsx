@@ -5,11 +5,22 @@ import { useCatalogFilters } from '../model/useCatalogFilters';
 import { SellerFilter } from './SellerFilter';
 import { PriceRange } from './PriceRange';
 import styles from './Filters.module.css';
+import { useTranslation } from 'react-i18next';
 
 const toggleIn = <T,>(list: T[], item: T) =>
   list.includes(item) ? list.filter((i) => i !== item) : [...list, item];
 
+const categoryTranslations: Record<string, string> = {
+  electronics: 'catalog.electronics',
+  appliances: 'catalog.appliances',
+  fashion: 'catalog.fashion',
+  home_garden: 'catalog.homeGarden',
+  sports: 'catalog.sports',
+  kids: 'catalog.kids',
+  auto: 'catalog.auto',
+};
 export function FiltersPanel() {
+  const { t } = useTranslation();
   const { filters, update, reset } = useCatalogFilters();
   const { data: facets } = useFacets(filters.category);
 
@@ -18,7 +29,7 @@ export function FiltersPanel() {
       <SellerFilter value={filters.sellers} onChange={(sellers) => update({ sellers })} />
 
       <fieldset className={styles.group}>
-        <legend className={styles.legend}>Category</legend>
+        <legend className={styles.legend}>{t('catalog.category')}</legend>
         <label className={styles.check}>
           <input
             type="radio"
@@ -26,7 +37,7 @@ export function FiltersPanel() {
             checked={!filters.category}
             onChange={() => update({ category: undefined })}
           />
-          All categories
+          {t('catalog.allCategories')}  
         </label>
         {mockCategories.map((c) => (
           <label key={c.id} className={styles.check}>
@@ -36,7 +47,9 @@ export function FiltersPanel() {
               checked={filters.category === c.slug}
               onChange={() => update({ category: c.slug })}
             />
-            {c.name}
+            {categoryTranslations[c.slug]
+              ? t(categoryTranslations[c.slug])
+              : c.name}
           </label>
         ))}
       </fieldset>
@@ -53,7 +66,7 @@ export function FiltersPanel() {
 
       {facets && facets.brands.length > 0 && (
         <fieldset className={styles.group}>
-          <legend className={styles.legend}>Brand</legend>
+          <legend className={styles.legend}>{t('catalog.brand')}</legend>
           {facets.brands.map((b) => (
             <label key={b} className={styles.check}>
               <input
@@ -69,7 +82,7 @@ export function FiltersPanel() {
 
       {facets && facets.conditions.length > 0 && (
         <fieldset className={styles.group}>
-          <legend className={styles.legend}>Condition</legend>
+          <legend className={styles.legend}>{t('catalog.condition')}</legend>
           {facets.conditions.map((c) => (
             <label key={c} className={styles.check}>
               <input
@@ -77,14 +90,14 @@ export function FiltersPanel() {
                 checked={filters.conditions.includes(c)}
                 onChange={() => update({ conditions: toggleIn(filters.conditions, c) })}
               />
-              {c === 'new' ? 'New' : 'Used'}
+              {c === 'new' ? t('catalog.new') : t('catalog.used')}
             </label>
           ))}
         </fieldset>
       )}
 
       <Button variant="ghost" onClick={reset}>
-        Reset filters
+        {t('catalog.resetFilters')}
       </Button>
     </div>
   );

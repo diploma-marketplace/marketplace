@@ -1,5 +1,6 @@
 import { Button } from '../Button';
 import styles from './Pagination.module.css';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   page: number;
@@ -20,11 +21,12 @@ function pageItems(page: number, count: number): (number | 'gap')[] {
 }
 
 export function Pagination({ page, pageCount, onChange }: Props) {
+  const { t } = useTranslation();
   if (pageCount <= 1) return null;
   return (
     <nav className={styles.nav} aria-label="Pagination">
       <Button variant="ghost" disabled={page === 1} onClick={() => onChange(page - 1)}>
-        Prev
+        {t('catalog.prev')}
       </Button>
       {pageItems(page, pageCount).map((item, i) =>
         item === 'gap' ? (
@@ -44,7 +46,7 @@ export function Pagination({ page, pageCount, onChange }: Props) {
         ),
       )}
       <Button variant="ghost" disabled={page === pageCount} onClick={() => onChange(page + 1)}>
-        Next
+        {t('catalog.next')}
       </Button>
     </nav>
   );

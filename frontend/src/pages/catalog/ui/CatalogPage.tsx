@@ -1,17 +1,19 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ProductCard, useProducts, type SortKey } from '@/entities/product';
 import { useCatalogFilters } from '@/features/catalog-filters';
 import { Button, Pagination, Skeleton } from '@/shared/ui';
 import styles from './CatalogPage.module.css';
 
 const SORT_OPTIONS: { value: SortKey; label: string }[] = [
-  { value: 'popular', label: 'Popular' },
-  { value: 'price_asc', label: 'Price: low to high' },
-  { value: 'price_desc', label: 'Price: high to low' },
-  { value: 'new', label: 'Newest' },
+  { value: 'popular', label: 'catalog.popular' },
+  { value: 'price_asc', label: 'catalog.priceLowToHigh' },
+  { value: 'price_desc', label: 'catalog.priceHighToLow' },
+  { value: 'new', label: 'catalog.newest' },
 ];
 
 export function CatalogPage() {
+  const { t } = useTranslation();
   const { filters, update } = useCatalogFilters();
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
   const { data, isPending, isError, isPlaceholderData, refetch } = useProducts(filters);
@@ -30,35 +32,35 @@ export function CatalogPage() {
 
       <div className={styles.toolbar}>
         <p className={styles.count} aria-live="polite">
-          {data ? `${data.total} products` : 'Loading…'}
+          {data ? t('catalog.productsCount', { count: data.total }) : t('catalog.loading')}
         </p>
         <label className={styles.sort}>
-          Sort
+          {t('catalog.sort')}
           <select
             value={filters.sort}
             onChange={(e) => update({ sort: e.target.value as SortKey })}
           >
             {SORT_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
-                {o.label}
+                {t(o.label)}
               </option>
             ))}
           </select>
         </label>
-        <div className={styles.layoutSwitch} role="group" aria-label="Layout">
+        <div className={styles.layoutSwitch} role="group" aria-label={t('catalog.layout')}>
           <Button
             variant={layout === 'grid' ? 'primary' : 'ghost'}
             aria-pressed={layout === 'grid'}
             onClick={() => setLayout('grid')}
           >
-            Grid
+            {t('catalog.grid')}
           </Button>
           <Button
             variant={layout === 'list' ? 'primary' : 'ghost'}
             aria-pressed={layout === 'list'}
             onClick={() => setLayout('list')}
           >
-            List
+            {t('catalog.list')}
           </Button>
         </div>
       </div>
@@ -73,15 +75,15 @@ export function CatalogPage() {
 
       {isError && (
         <div role="alert" className={styles.state}>
-          <p>Could not load products.</p>
+          <p>{t('catalog.loadError')}</p>
           <Button variant="primary" onClick={() => refetch()}>
-            Try again
+            {t('catalog.tryAgain')}
           </Button>
         </div>
       )}
 
       {data && data.items.length === 0 && (
-        <p className={styles.state}>Nothing found. Try changing the filters.</p>
+        <p className={styles.state}>{t('catalog.nothingFound')}</p>
       )}
 
       {data && data.items.length > 0 && (

@@ -1,11 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import type { SellerType } from '@/entities/product';
 import styles from './Filters.module.css';
-
-const OPTIONS: { value: SellerType; label: string }[] = [
-  { value: 'marketplace', label: 'From marketplace' },
-  { value: 'company', label: 'From companies' },
-  { value: 'fop', label: 'From private sellers' },
-];
 
 interface Props {
   value: SellerType[];
@@ -13,12 +8,20 @@ interface Props {
 }
 
 export function SellerFilter({ value, onChange }: Props) {
+  const { t } = useTranslation();
+
+  const OPTIONS: { value: SellerType; label: string }[] = [
+    { value: 'marketplace', label: t('catalog.fromMarketplace') },
+    { value: 'company', label: t('catalog.fromCompanies') },
+    { value: 'fop', label: t('catalog.fromPrivateSellers') },
+  ];
+  
   const toggle = (s: SellerType) =>
     onChange(value.includes(s) ? value.filter((v) => v !== s) : [...value, s]);
 
   return (
     <fieldset className={`${styles.group} ${styles.sellers}`}>
-      <legend className={styles.legend}>Seller</legend>
+      <legend className={styles.legend}>{t('catalog.seller')}</legend>
       {OPTIONS.map((o) => (
         <label
           key={o.value}
