@@ -8,10 +8,10 @@ const queryClient = new QueryClient({
 
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <AuthModalProvider>{children}</AuthModalProvider>
-        </AuthProvider>
-      </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <AuthModalProvider>{children}</AuthModalProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }

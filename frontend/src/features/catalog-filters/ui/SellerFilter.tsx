@@ -22,9 +22,15 @@ export function SellerFilter({ value, onChange }: Props) {
       {OPTIONS.map((o) => (
         <label
           key={o.value}
-          className={o.value === 'marketplace' ? `${styles.check} ${styles.primaryCheck}` : styles.check}
+          className={
+            o.value === 'marketplace' ? `${styles.check} ${styles.primaryCheck}` : styles.check
+          }
         >
-          <input type="checkbox" checked={value.includes(o.value)} onChange={() => toggle(o.value)} />
+          <input
+            type="checkbox"
+            checked={value.includes(o.value)}
+            onChange={() => toggle(o.value)}
+          />
           {o.label}
         </label>
       ))}

@@ -29,7 +29,12 @@ export function Sidebar() {
       <Button variant="primary" onClick={() => setOpen(true)}>
         Filters
       </Button>
-      <dialog ref={dialogRef} className={styles.drawer} aria-label="Filters" onClose={() => setOpen(false)}>
+      <dialog
+        ref={dialogRef}
+        className={styles.drawer}
+        aria-label="Filters"
+        onClose={() => setOpen(false)}
+      >
         <Button variant="ghost" onClick={() => setOpen(false)}>
           Close
         </Button>

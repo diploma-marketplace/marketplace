@@ -40,7 +40,9 @@ export function Header() {
                 )}
               </Link>
               <Button variant="secondary">Cart</Button>
-              <Button variant="ghost" onClick={() => logout()}>Logout</Button>
+              <Button variant="ghost" onClick={() => logout()}>
+                Logout
+              </Button>
             </>
           )}
         </nav>
