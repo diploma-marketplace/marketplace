@@ -26,7 +26,9 @@ export function ProductCard({ product, layout = 'grid' }: ProductCardProps) {
       <div className={styles.info}>
         <h3 className={styles.title}>{product.title}</h3>
         <p className={styles.meta}>
-          {[product.brand, product.condition === 'used' ? 'Used' : 'New'].filter(Boolean).join(' · ')}
+          {[product.brand, product.condition === 'used' ? 'Used' : 'New']
+            .filter(Boolean)
+            .join(' · ')}
         </p>
         <p className={styles.price}>{priceFormat.format(product.price)}</p>
         <span className={styles.badge}>{SELLER_LABEL[product.sellerType]}</span>

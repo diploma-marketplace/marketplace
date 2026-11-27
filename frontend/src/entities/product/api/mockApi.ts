@@ -18,7 +18,10 @@ const inCategory = (p: Product, slug?: string) => {
   return !cat || p.categoryId === cat.id;
 };
 
-export async function mockFetchProducts(q: ProductQuery, signal?: AbortSignal): Promise<ProductsPage> {
+export async function mockFetchProducts(
+  q: ProductQuery,
+  signal?: AbortSignal,
+): Promise<ProductsPage> {
   await delay(300, signal);
   const text = q.q.toLowerCase();
   const items = mockProducts.filter(
@@ -44,7 +47,12 @@ export async function mockFetchProducts(q: ProductQuery, signal?: AbortSignal): 
     }
   });
   const start = (q.page - 1) * q.pageSize;
-  return { items: items.slice(start, start + q.pageSize), total: items.length, page: q.page, pageSize: q.pageSize };
+  return {
+    items: items.slice(start, start + q.pageSize),
+    total: items.length,
+    page: q.page,
+    pageSize: q.pageSize,
+  };
 }
 
 export async function mockFetchFacets(category?: string): Promise<ProductFacets> {
