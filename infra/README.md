@@ -50,7 +50,7 @@ sudo /opt/marketplace/infra/scripts/renew-cert.sh                    # ручн�
 На кожен PR у `main` GitHub Actions ([.github/workflows/infra.yml](../.github/workflows/infra.yml)) перевіряє:
 
 - синтаксис Docker Compose (сервер і локальна база);
-- образ сайту з `frontend/Dockerfile`: Node той самий, що в `frontend/.nvmrc`, збірка, далі на ньому Nginx: `nginx -t` без попереджень, редірект на HTTPS, шлях Let's Encrypt, HTTPS віддає зібрану сторінку і її JS, маршрути React, HTTP/2, заголовки безпеки;
+- образ сайту з `frontend/Dockerfile`: Node той самий, що в `frontend/.nvmrc`, збірка, далі на ньому Nginx: `nginx -t` без попереджень, редірект на HTTPS, шлях Let's Encrypt, HTTPS віддає зібрану сторінку і її JS, стиснення gzip, кеш файлів збірки на рік і `no-cache` для `index.html`, `/api/` без backend → 503, маршрути React, HTTP/2, заголовки безпеки;
 - `infra/db/roles.sql` на PostgreSQL, налаштованому як Azure: права `marketplace_owner` і `marketplace_app`.
 
 Ті самі перевірки локально, з кореня репозиторію (потрібен Docker):
