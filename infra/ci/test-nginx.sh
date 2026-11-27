@@ -94,6 +94,25 @@ else
     fail "у сторінці немає посилання на /assets/*.js"
 fi
 
+# Стиснення і кеш JS; файлу, якого немає в збірці, — 404, а не index.html
+if [[ -n $JS ]]; then
+    ENC=$(curl -sk -o /dev/null -D - -H 'Accept-Encoding: gzip' "${RES[@]}" "https://$DOMAIN:$HTTPS$JS" | tr -d '\r' || true)
+    grep -qi '^content-encoding: gzip' <<<"$ENC" && ok "JS стискається (gzip)" || fail "JS без gzip"
+    grep -qi '^cache-control: max-age=31536000' <<<"$ENC" && ok "JS кешується на рік" || fail "JS без кешу на рік"
+    grep -qi '^content-security-policy:' <<<"$ENC" && ok "заголовки безпеки і на файлах збірки" || fail "на файлах збірки немає заголовків безпеки"
+fi
+CODE=$(curl -sk -o /dev/null -w '%{http_code}' "${RES[@]}" "https://$DOMAIN:$HTTPS/assets/ci-test.js" || true)
+[[ $CODE == 404 ]] && ok "неіснуючий файл збірки → 404" || fail "неіснуючий файл збірки: код $CODE, очікувався 404"
+# index.html не кешується: після викладки браузер одразу бере нову версію (і на сторінках React, вони теж index.html)
+for P in / /catalog/ci-test; do
+    CC=$(curl -skI "${RES[@]}" "https://$DOMAIN:$HTTPS$P" | tr -d '\r' | grep -i '^cache-control:' || true)
+    [[ ${CC,,} == *no-cache* ]] && ok "$P не кешується (no-cache)" || fail "$P: ${CC:-немає Cache-Control}"
+done
+
+# /api/ поки backend немає: 503, а не index.html
+CODE=$(curl -sk -o /dev/null -w '%{http_code}' "${RES[@]}" "https://$DOMAIN:$HTTPS/api/auth/me" || true)
+[[ $CODE == 503 ]] && ok "/api/ без backend → 503" || fail "/api/: код $CODE, очікувався 503"
+
 # Будь-яка адреса React → index.html (try_files)
 CODE=$(curl -sk -o /dev/null -w '%{http_code}' "${RES[@]}" "https://$DOMAIN:$HTTPS/catalog/ci-test" || true)
 [[ $CODE == 200 ]] && ok "маршрути React (try_files)" || fail "маршрути React: код $CODE"
